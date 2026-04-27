@@ -43,7 +43,7 @@ Chronological "what we did, why, when" notes. Each session adds one date-prefixe
 | Hardware | **3** — Pump + relay integration | ⬜ Pending | — |
 | Hardware | **4** — Field test | ⬜ Pending | — |
 | Software | **D1** — Logger + schema | 🟡 Code on disk (`server/logger.py`, `server/schema.sql`); will start ingesting once hardware Phase 2 is wired | [dashboard_plan.md](dashboard_plan.md#d1--logger--schema-depends-on-hardware-phase-2) |
-| Software | **D2** — Plant profile via Xiaoxia | 🟡 Goldie's YAML + photo committed; `prompts/care_tips.md` not yet pinned | [plants/1.yaml](../plants/1.yaml) |
+| Software | **D2** — Plant profile via Xiaoxia | ✅ Goldie + Fernando YAMLs committed; `prompts/care_tips.md` pinned 2026-04-27 | [plants/](../plants/) · [prompts/care_tips.md](../prompts/care_tips.md) |
 | Software | **D3a** — Public preview site | ✅ Live | <https://winnieyangwannan.github.io/WaterPlant/> |
 | Software | **D3b** — Live VPS dashboard (basic auth) | ⬜ Gated on hardware Phase 2 | [dashboard_plan.md](dashboard_plan.md#d3b--live-vps-dashboard-with-basic-auth) |
 | Software | **D4** — Watering before/after pairing | ⬜ Gated on Phase 3 | [dashboard_plan.md](dashboard_plan.md#d4--watering-history--beforeafter-pairing) |
