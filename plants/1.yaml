@@ -34,7 +34,7 @@ care_tips:
 # Photo files live on the VPS at /var/lib/waterplant/photos/<id>/<filename>.
 # Each entry is referenced from here so the manifest is versioned.
 photos:
-  - path: 1/2026-04-27_hero.jpg
+  - path: 1/goldie.jpg
     taken_at: 2026-04-27
     caption: "Hanging in the kitchen — variegation looking strong, slight tip browning on a few leaves."
     is_hero: true

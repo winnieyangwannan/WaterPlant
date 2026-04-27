@@ -47,7 +47,14 @@ If `plants/1.yaml`, `plants/2.yaml` exist, the new plant is id `3`.
 
 ---
 
-## Step 2 — Copy the reference photo into the repo
+## Step 2 — Copy reference photo + generate the web hero JPEG
+
+This step does two related things in one shot: stash the **source photo**
+in the repo (full resolution, used later as input to Gemini for sprite
+generation) and generate the **web hero JPEG** that the plant's detail
+page renders in its header.
+
+### 2a — Copy the source photo
 
 ```bash
 cp <source-photo> plants/<id>_<short-name>.HEIC
@@ -56,11 +63,49 @@ cp <source-photo> plants/<id>_<short-name>.HEIC
 
 Naming convention: `<id>_<short-name>.<ext>`. The id-prefix keeps
 chronological + alphabetical order aligned and avoids name collisions if
-two plants ever share a common name.
+two plants ever share a common name. HEIC, JPG, and PNG are all fine —
+the converter below handles all three.
 
-If the photo is HEIC, also generate a JPEG copy under `outputs/` so
-Gemini can ingest it (the API accepts JPEG/PNG; HEIC needs conversion via
-`pillow-heif`). See `prompts/sprites.md` for the conversion snippet.
+### 2b — Generate the web hero JPEG (do this automatically)
+
+Every plant's detail page references **`dashboard_preview/photos/<id>/<short-name>.jpg`**
+in the hero card and the photo-timeline strip. **The agent (Claude /
+Xiaoxia) executing this runbook should produce this file as part of the
+add-plant flow** — never leave it as a "drop a hero photo manually later"
+step. The HTML expects it; the YAML's `photos:` manifest references it.
+
+Naming convention for the hero JPEG: **`<short-name>.jpg`** under the
+plant's id-folder, *not* `hero.jpg`. The plant's name is more identifiable
+in `ls` output, fits the rest of the project's "plants are characters"
+tone, and survives if hero photos ever consolidate to a flat folder.
+Future timeline photos taken on specific dates can sit alongside as
+`<YYYY-MM-DD>_<descriptor>.jpg`.
+
+Conversion snippet (handles HEIC + downscales to a web-friendly size):
+
+```python
+from pillow_heif import register_heif_opener
+register_heif_opener()
+from PIL import Image
+import os
+
+src = "plants/<id>_<short-name>.HEIC"   # or .jpg / .png
+dst = "dashboard_preview/photos/<id>/<short-name>.jpg"
+os.makedirs(os.path.dirname(dst), exist_ok=True)
+img = Image.open(src)
+img.thumbnail((1200, 1200))     # max longest side
+img.convert("RGB").save(dst, "JPEG", quality=85, optimize=True)
+```
+
+Target size: ~1200 px on the longest side, ~85% quality. The hero card
+displays at 220×220 on desktop, so 1200 px is comfortably retina-grade
+without ballooning the page. Real example outputs from the 2026-04-27
+session: Goldie 245 KB, Fernando 274 KB.
+
+> **Why bake this into the runbook instead of leaving it as a manual
+> step:** the page renders broken without it (just the emoji fallback),
+> the source photo is already on disk in 2a, and the conversion is
+> three lines of Python. There's no scenario where deferring it pays off.
 
 ---
 
@@ -97,9 +142,12 @@ care_tips:
   soil: <...>
   temperature: <...>
 
-# Each photo: file path on the VPS, taken_at date, optional caption, is_hero flag.
+# Each photo: file path under dashboard_preview/photos/, taken_at date,
+# optional caption, is_hero flag. The hero photo file is named
+# <short-name>.jpg (see Step 2b above). Additional photos taken later
+# can sit alongside as <YYYY-MM-DD>_<descriptor>.jpg.
 photos:
-  - path: <id>/<YYYY-MM-DD>_hero.jpg
+  - path: <id>/<short-name>.jpg
     taken_at: <YYYY-MM-DD>
     caption: <free-text>
     is_hero: true
@@ -221,14 +269,18 @@ Edit [`dashboard_preview/index.html`](../../dashboard_preview/index.html):
 ```bash
 # HTML well-formedness
 python3 -c "from html.parser import HTMLParser; ..."
-# Sprite paths exist
-ls dashboard_preview/sprites/<id>.png dashboard_preview/sprites/<id>_original.png
+# All generated files exist
+ls dashboard_preview/sprites/<id>.png dashboard_preview/sprites/<id>_original.png \
+   dashboard_preview/photos/<id>/<short-name>.jpg
 # Local preview
 open dashboard_preview/index.html  # or click the file in Cowork
 ```
 
 Confirm visually that the new plant appears in the garden, hover/click
-work, and the per-plant page (`<id>.html`) renders without console errors.
+work, the per-plant page (`<id>.html`) renders without console errors,
+**and the hero card on the detail page shows the real photo (not the
+emoji fallback)**. If the fallback appears, Step 2b didn't run or the
+filename in the YAML / HTML doesn't match the file on disk.
 
 ---
 
@@ -248,6 +300,7 @@ work, and the per-plant page (`<id>.html`) renders without console errors.
 git add plants/<id>.yaml plants/<id>_<short-name>.HEIC plants/_sensor_map.yaml \
         dashboard_preview/<id>.html dashboard_preview/index.html \
         dashboard_preview/sprites/<id>.png dashboard_preview/sprites/<id>_original.png \
+        dashboard_preview/photos/<id>/<short-name>.jpg \
         docs/sessions/<date>-add-plant-<id>-<short-name>.md \
         docs/plan.md
 git commit -m "add plant <id>: <Name> (<Latin species name>)"
@@ -279,3 +332,10 @@ GitHub Pages republishes within a minute or two.
   (`prompts/care_tips.md`); the "still pending" caveat removed. Care tips
   are LLM-generated by default; hand-writing only when the species is
   obscure or the user has environment-specific overrides.
+- **2026-04-27** — Step 2 expanded to cover both the source-photo copy
+  (Step 2a) and the **automatic web hero JPEG generation** (Step 2b).
+  Hero JPEG naming convention pinned to `<short-name>.jpg`
+  (e.g. `goldie.jpg`, `fernando.jpg`) instead of the previous generic
+  `hero.jpg` placeholder. Goldie's and Fernando's pages + YAML manifests
+  migrated to the new convention. Verify (Step 8) and Commit (Step 10)
+  updated to include the photos directory.

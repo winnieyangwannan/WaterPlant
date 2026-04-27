@@ -37,7 +37,7 @@ care_tips:
 # Photo files live on the VPS at /var/lib/waterplant/photos/<id>/<filename>.
 # Each entry is referenced from here so the manifest is versioned.
 photos:
-  - path: 2/2026-04-27_hero.jpg
+  - path: 2/fernando.jpg
     taken_at: 2026-04-27
     caption: "Hanging out on the kitchen counter — fronds spreading dramatically, a few tips browning from dry winter air."
     is_hero: true
