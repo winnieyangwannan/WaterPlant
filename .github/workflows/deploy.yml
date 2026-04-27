@@ -35,11 +35,24 @@ jobs:
 
       - name: Deploy to gh-pages
         run: |
-          git checkout -B gh-pages
+          # Checkout the main branch, as the generated files are in the root
+          # This ensures we have the latest main branch code to build from
+          git checkout main
+
+          # Generate the site content directly in the working directory
+          python server/generate_static_site.py
+
+          # Ensure gh-pages branch exists, create/checkout it
+          # Using --orphan creates a new branch with no history, useful for a clean deploy
+          git checkout --orphan gh-pages
+          
+          # Add all generated files (HTML etc.)
           git add index.html *.html
+
+          # Commit the generated files
           if ! git diff --cached --quiet; then
-            git commit -m "Build: Update static website files"
+            git commit -m "Build: Update static website files from main"
+            git push origin gh-pages --force
           else
-            echo "No changes to commit."
+            echo "No changes to commit to gh-pages."
           fi
-          git push origin gh-pages --force
