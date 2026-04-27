@@ -3,22 +3,22 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # Trigger the workflow on pushes to the main branch
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history for git operations
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x' # Use the latest available Python 3 version
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
@@ -26,34 +26,20 @@ jobs:
           pip install PyYAML Jinja2
 
       - name: Generate static site
-        run: |
-          python server/generate_static_site.py
+        run: python server/generate_static_site.py
 
       - name: Configure Git user
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
-      - name: Commit generated HTML files
+      - name: Deploy to gh-pages
         run: |
-          # Add all generated HTML files in the root directory
+          git checkout -B gh-pages
           git add index.html *.html
-          # Commit only if there are changes
           if ! git diff --cached --quiet; then
             git commit -m "Build: Update static website files"
           else
             echo "No changes to commit."
           fi
-
-      - name: Push generated files to gh-pages branch
-        uses: s0/git-publish-gh-pages@v1
-        with:
-          # Replace 'winnieyangwannan/WaterPlant' with your actual username/repo
-          repo: winnieyangwannan/WaterPlant
-          # The branch to deploy to
-          branch: gh-pages
-          # Crucial for project pages: uncomment and set the baseurl
-          baseurl: /WaterPlant/
-          # Committer username and email (can be customized)
-          committer_name: 'GitHub Actions'
-          committer_email: 'actions@github.com'
+          git push origin gh-pages --force
