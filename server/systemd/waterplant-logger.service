@@ -1,0 +1,14 @@
+[Unit]
+Description=WaterPlant Logger — serial bridge to SQLite
+After=network.target
+
+[Service]
+User=clawd
+Group=clawd
+WorkingDirectory=/home/clawd/WaterPlant/server
+ExecStart=/home/clawd/WaterPlant/server/.venv/bin/python3 /home/clawd/WaterPlant/server/logger.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

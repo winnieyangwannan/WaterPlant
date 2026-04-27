@@ -1,0 +1,14 @@
+[Unit]
+Description=WaterPlant HTTP Server — serves dashboard pages
+After=network.target
+
+[Service]
+User=clawd
+Group=clawd
+WorkingDirectory=/var/www/waterplant
+ExecStart=/home/clawd/WaterPlant/server/simple-http-server.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WaterPlant Dashboard</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        h1 { color: #333; }
+        .plant-list { list-style: none; padding: 0; }
+        .plant-item { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9; display: flex; align-items: center; justify-content: space-between;}
+        .plant-item a { text-decoration: none; color: #007bff; }
+        .plant-item span { font-size: 0.9em; color: #666; }
+        .plant-item .status { font-weight: bold; }
+        .plant-item .status.warning { color: orange; }
+        .plant-item .status.critical { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Watering Dashboard</h1>
+    <p>Your plants' status at a glance.</p>
+
+    <ul class="plant-list">
+        {% for plant in plants %}
+        <li class="plant-item">
+            <span>
+                <a href="{{ plant.id }}.html"><strong>{{ plant.name }}</strong></a><br>
+                <em>{{ plant.species }}</em>
+            </span>
+            <span>
+                Moisture: {{ plant.latest.moisture_pct }}% <br>
+                Last seen: {{ time_ago(plant.latest.recorded_at) }}
+                 <span class="status {{ 'warning' if 'min ago' in plant.sensor_status and int(plant.sensor_status.split('m')[0]) > 30 else ('critical' if 'h ago' in plant.sensor_status or 'd ago' in plant.sensor_status else '') }}">{{ plant.sensor_status }}</span>
+            </span>
+        </li>
+        {% else %}
+        <li>No plants found. Add one using natural language commands.</li>
+        {% endfor %}
+    </ul>
+    <p><small>Page generated at: {{ now }}</small></p>
+</body>
+</html>

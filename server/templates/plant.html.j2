@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ plant.name }} Dashboard</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 900px; margin: 0 auto; }
+        h1 { color: #333; }
+        .plant-info, .reading-card, .watering-history, .photo-timeline, .notes { margin-bottom: 30px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9; }
+        .reading-card { background-color: #e8f5e9; } /* Light green for readings */
+        .plant-photo { float: right; margin-left: 20px; max-width: 200px; border-radius: 5px; }
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .history-table th { background-color: #f2f2f2; }
+        .photo-item img { max-width: 150px; height: auto; border-radius: 3px; margin-right: 10px; cursor: pointer; }
+        .chart-container { width: 100%; height: 300px; margin-top: 20px; }
+        /* Simple placeholder style - replace with actual chart library */
+        .chart-placeholder { background-color: #f0f0f0; height: 100%; display: flex; align-items: center; justify-content: center; color: #888; font-style: italic; }
+        .notes-list li { margin-bottom: 10px; }
+        .sensor-status { font-weight: bold; }
+        .sensor-status.warning { color: orange; }
+        .sensor-status.critical { color: red; }
+    </style>
+</head>
+<body>
+    <div class="plant-info">
+        <h1>{{ plant.name }}</h1>
+        <p><strong>Species:</strong> {{ plant.species }}</p>
+        {% if plant.photos %}
+            {% for photo in plant.photos %}
+                {% if photo.is_hero %}
+                <img src="/photos/{{ photo.path }}" alt="Hero photo of {{ plant.name }}" class="plant-photo">
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <p><strong>Added:</strong> {{ plant.added_at.strftime('%Y-%m-%d') }}</p>
+    </div>
+
+    <div class="reading-card">
+        <h2>Current Status</h2>
+        {% if latest %}
+            <p><strong>Moisture:</strong> {{ latest.moisture_pct }}%</p>
+            <p><strong>Last Reading:</strong> {{ time_ago(latest.recorded_at) }} ({{ latest.recorded_at.split('T')[1].split('.')[0] }})</p>
+            <p><strong>Sensor Health:</strong> <span class="sensor-status {{ 'warning' if 'min ago' in sensor_status and int(sensor_status.split('m')[0]) > 30 else ('critical' if 'h ago' in sensor_status or 'd ago' in sensor_status else '') }}">{{ sensor_status }}</span></p>
+            {% if latest.moisture_pct < 30 %} <p><em>Needs watering soon!</em></p> {% endif %}
+        {% else %}
+            <p>No recent readings available.</p>
+        {% endif %}
+    </div>
+
+    <div class="chart-container">
+        <h2>Moisture History (Last 30 Days)</h2>
+        <div id="moistureChart" class="chart-placeholder">Chart will load here (Implementation needed)</div>
+    </div>
+
+    <div class="watering-history">
+        <h2>Watering History (Last 20)</h2>
+        {% if waterings %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Started</th>
+                        <th>Ended</th>
+                        <th>Duration</th>
+                        <th>Before (%)</th>
+                        <th>After (%)</th>
+                        <th>Trigger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in waterings %}
+                    <tr>
+                        <td>{{ time_ago(event.started_at) }}</td>
+                        <td>{{ time_ago(event.ended_at) if event.ended_at else 'Ongoing' }}</td>
+                        <td>{{ event.duration_ms or 'N/A' }} ms</td>
+                        <td>{{ event.moisture_before if event.moisture_before is not none else 'N/A' }}</td>
+                        <td>{{ event.moisture_after if event.moisture_after is not none else 'N/A' }}</td>
+                        <td>{{ event.trigger_source }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No watering events recorded yet.</p>
+        {% endif %}
+    </div>
+    
+    {% if plant.photos %}
+    <div class="photo-timeline">
+        <h2>Photo Timeline</h2>
+        <div style="display: flex; overflow-x: auto;">
+            {% for photo in plant.photos %}
+                {% if not photo.is_hero %}
+                <div class="photo-item">
+                    <img src="/photos/{{ photo.path }}" alt="{{ photo.caption or plant.name + ' photo' }}" title="{{ photo.caption }}">
+                    <p>{{ time_ago(photo.taken_at) }}</p>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if plant.notes %}
+    <div class="notes">
+        <h2>Notes</h2>
+        <ul class="notes-list">
+            {% for note in plant.notes %}
+                <li><strong>{{ note.date.strftime('%Y-%m-%d') }}</strong>: {{ note.body }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <p><small>Page generated at: {{ now }}</small></p>
+
+    <script nonce="random-nonce-placeholder">
+        // Placeholder for chart implementation. You would typically use a library like Chart.js here.
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartContainer = document.getElementById('moistureChart');
+            const chartData = JSON.parse('{{ chart_data | safe }}');
+            if (chartData && chartData.length > 0) {
+                chartContainer.innerHTML = "Chart rendering not yet implemented. Data: " + JSON.stringify(chartData);
+                // Example: Basic Chart.js integration would go here.
+                // const ctx = chartContainer.getContext('2d');
+                // new Chart(ctx, { ... configuration using chartData ... });
+            } else {
+                chartContainer.innerHTML = "No historical data available for charting.";
+            }
+        });
+    </script>
+</body>
+</html>
