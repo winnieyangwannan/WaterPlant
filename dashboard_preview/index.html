@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WaterPlant · Winnie's Plants</title>
+<style>
+  :root {
+    --bg: #f7f4ed;
+    --bg-2: #efe9d9;
+    --surface: #ffffff;
+    --surface-2: #f4eee0;
+    --border: rgba(60, 50, 30, 0.12);
+    --border-2: rgba(60, 50, 30, 0.20);
+    --text: #2a2925;
+    --text-2: #5c5847;
+    --text-3: #8c8775;
+    --green: #4a7c44;
+    --green-soft: #dce8d4;
+    --gold: #c8923c;
+    --gold-soft: #f5e8c6;
+    --water: #4a8fb5;
+    --water-soft: #dcebf3;
+    --warn: #b46a1a;
+    --warn-soft: #faeeda;
+    --shadow: 0 1px 3px rgba(60, 50, 30, 0.06), 0 8px 24px rgba(60, 50, 30, 0.04);
+    --shadow-hover: 0 4px 12px rgba(60, 50, 30, 0.10), 0 16px 36px rgba(60, 50, 30, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1f1b;
+      --bg-2: #131815;
+      --surface: #242a26;
+      --surface-2: #2c322e;
+      --border: rgba(255, 245, 220, 0.10);
+      --border-2: rgba(255, 245, 220, 0.18);
+      --text: #ece8d8;
+      --text-2: #b5b0a0;
+      --text-3: #82806f;
+      --green: #97c459;
+      --green-soft: rgba(151, 196, 89, 0.16);
+      --gold: #e0b26b;
+      --gold-soft: rgba(224, 178, 107, 0.16);
+      --water: #85b7eb;
+      --water-soft: rgba(133, 183, 235, 0.16);
+      --warn: #f0b070;
+      --warn-soft: rgba(240, 176, 112, 0.18);
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.2);
+      --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 36px rgba(0, 0, 0, 0.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at top, var(--bg) 0%, var(--bg-2) 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Animated background leaves — same as plant page */
+  .bg-leaves { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-leaves span {
+    position: absolute;
+    font-size: 32px;
+    opacity: 0.10;
+    animation: drift 22s ease-in-out infinite;
+    filter: saturate(0.8);
+  }
+  .bg-leaves .l1 { top: 8%;  left: 4%;   animation-duration: 18s; animation-delay: -2s;  font-size: 28px; }
+  .bg-leaves .l2 { top: 22%; right: 6%;  animation-duration: 24s; animation-delay: -7s;  font-size: 36px; }
+  .bg-leaves .l3 { top: 48%; left: 2%;   animation-duration: 20s; animation-delay: -11s; font-size: 30px; }
+  .bg-leaves .l4 { top: 65%; right: 3%;  animation-duration: 26s; animation-delay: -4s;  font-size: 26px; }
+  .bg-leaves .l5 { top: 82%; left: 6%;   animation-duration: 19s; animation-delay: -14s; font-size: 32px; }
+  .bg-leaves .l6 { top: 35%; left: 50%;  animation-duration: 28s; animation-delay: -9s;  font-size: 22px; opacity: 0.06; }
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%      { transform: translateY(-26px) rotate(8deg); }
+  }
+
+  .page { max-width: 920px; margin: 0 auto; padding: 56px 28px 56px; position: relative; z-index: 1; }
+  section { animation: rise 0.7s ease-out backwards; }
+  section:nth-of-type(1) { animation-delay: 0.05s; }
+  section:nth-of-type(2) { animation-delay: 0.18s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .site-header { margin: 0 0 40px; }
+  .site-header h1 {
+    font-size: 44px; font-weight: 500; margin: 0 0 6px;
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .site-header h1 .leaf-emoji {
+    font-size: 38px; animation: sway 5s ease-in-out infinite;
+    transform-origin: bottom center; display: inline-block;
+  }
+  @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .site-header .tagline { font-size: 16px; color: var(--text-2); margin: 0 0 16px; }
+  .site-header .summary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green-soft); color: var(--green);
+    border-radius: 999px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500;
+  }
+  .live-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.3); opacity: 0.7; }
+  }
+
+  /* Plant cards */
+  .label {
+    font-size: 12px; color: var(--text-3); margin: 0 0 14px;
+    letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;
+  }
+  .plant-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .plant-card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .plant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .plant-card .thumb {
+    aspect-ratio: 4 / 3; background: var(--surface-2);
+    overflow: hidden; position: relative;
+  }
+  .plant-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+  .plant-card:hover .thumb img { transform: scale(1.04); }
+  .plant-card .thumb.no-photo img { display: none; }
+  .plant-card .thumb.no-photo {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--surface-2), var(--green-soft));
+    color: var(--text-3); font-size: 14px;
+  }
+  .plant-card .thumb.no-photo .leaf-big {
+    font-size: 64px; animation: sway 4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .plant-card .body { padding: 16px 20px 18px; }
+  .plant-card h2 {
+    font-size: 22px; font-weight: 500; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .plant-card h2 .leaf-emoji {
+    font-size: 18px; animation: sway 5s ease-in-out infinite;
+    transform-origin: bottom center; display: inline-block;
+  }
+  .plant-card .species { font-size: 13px; color: var(--text-2); margin: 0 0 14px; font-style: italic; }
+  .plant-card .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 500;
+  }
+  .pill-water { background: var(--water-soft); color: var(--water); }
+  .pill-ok    { background: var(--green-soft); color: var(--green); }
+  .pill-warn  { background: var(--warn-soft);  color: var(--warn); }
+
+  /* Empty slot for future plants */
+  .add-slot {
+    border: 1.5px dashed var(--border-2); border-radius: 18px;
+    aspect-ratio: 4 / 3.5;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    color: var(--text-3); font-size: 13px; text-align: center; padding: 20px;
+    background: transparent;
+  }
+  .add-slot .plus { font-size: 36px; opacity: 0.5; line-height: 1; }
+  .add-slot p { margin: 10px 0 0; }
+  .add-slot code { font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; background: var(--surface); padding: 2px 6px; border-radius: 4px; border: 0.5px solid var(--border); }
+
+  footer {
+    margin-top: 60px; padding-top: 20px;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px; color: var(--text-3); text-align: center;
+  }
+  footer a { color: var(--text-2); text-decoration: none; border-bottom: 0.5px dotted var(--border-2); }
+  footer code { font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; }
+  footer .heart { color: var(--green); animation: pulse 2.5s ease-in-out infinite; display: inline-block; }
+
+  @media (max-width: 720px) {
+    .page { padding: 36px 18px 40px; }
+    .site-header h1 { font-size: 36px; }
+    .plant-grid { grid-template-columns: 1fr; gap: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .bg-leaves { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-leaves" aria-hidden="true">
+  <span class="l1">🌿</span>
+  <span class="l2">🍃</span>
+  <span class="l3">🌱</span>
+  <span class="l4">🌿</span>
+  <span class="l5">🍃</span>
+  <span class="l6">🌿</span>
+</div>
+
+<div class="page">
+
+  <section class="site-header">
+    <h1>Winnie's plants <span class="leaf-emoji">🌿</span></h1>
+    <p class="tagline">A small WaterPlant household. Click any plant for full profile, moisture chart, and watering history.</p>
+    <span class="summary"><span class="live-dot"></span> 1 plant tracked · all sensors healthy</span>
+  </section>
+
+  <section>
+    <p class="label">Plants</p>
+    <div class="plant-grid">
+
+      <a class="plant-card" href="1.html">
+        <div class="thumb">
+          <img src="photos/1/hero.jpg" alt="Goldie the Golden Pothos" onerror="this.parentElement.classList.add('no-photo')">
+          <span class="leaf-big">🪴</span>
+        </div>
+        <div class="body">
+          <h2>Goldie <span class="leaf-emoji">🌿</span></h2>
+          <p class="species">Epipremnum aureum (Golden Pothos)</p>
+          <div class="stats">
+            <span class="pill pill-water">💧 42%</span>
+            <span class="pill pill-ok">5d ago</span>
+            <span class="pill pill-ok"><span class="live-dot"></span> healthy</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="add-slot">
+        <span class="plus">+</span>
+        <p>Add another plant by editing <code>plants/&lt;id&gt;.yaml</code></p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Public preview · simulated data until hardware Phase 2 lands.<br>
+       Source on <a href="https://github.com/winnieyangwannan/WaterPlant">GitHub</a> · built with <span class="heart">💚</span></p>
+  </footer>
+
+</div>
+</body>
+</html>

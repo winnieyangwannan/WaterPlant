@@ -1,58 +1,50 @@
-name: Deploy to GitHub Pages
+# Deploys dashboard_preview/ to GitHub Pages on every push to main.
+#
+# Uses the modern Pages flow (configure-pages + upload-pages-artifact +
+# deploy-pages). No gh-pages branch — the static site is served directly
+# from the workflow artifact.
+#
+# One-time setup: in repo Settings → Pages → Source, choose "GitHub Actions".
+# After that, every push to main rebuilds and redeploys automatically.
+
+name: Deploy public preview to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
+
+# Required permissions for the modern deploy-pages action.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Don't queue redundant deploys. Cancel in-flight runs if a newer one starts.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout main branch
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site artifact
+        # The whole dashboard_preview/ directory becomes the site root.
+        # Goldie's page is at /1.html, plant index at /, photos under /photos/<id>/.
+        uses: actions/upload-pages-artifact@v3
         with:
-          fetch-depth: 0
+          path: ./dashboard_preview
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install PyYAML Jinja2
-
-      - name: Generate static site
-        run: python server/generate_static_site.py
-
-      - name: Configure Git user
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Deploy to gh-pages
-        run: |
-          # Checkout the main branch, as the generated files are in the root
-          # This ensures we have the latest main branch code to build from
-          git checkout main
-
-          # Generate the site content directly in the working directory
-          python server/generate_static_site.py
-
-          # Ensure gh-pages branch exists, create/checkout it
-          # Using --orphan creates a new branch with no history, useful for a clean deploy
-          git checkout --orphan gh-pages
-          
-          # Add all generated files (HTML etc.)
-          git add index.html *.html
-
-          # Commit the generated files
-          if ! git diff --cached --quiet; then
-            git commit -m "Build: Update static website files from main"
-            git push origin gh-pages --force
-          else
-            echo "No changes to commit to gh-pages."
-          fi
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
