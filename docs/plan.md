@@ -49,6 +49,9 @@ Chronological "what we did, why, when" notes. Each session adds one date-prefixe
 | Software | **D4** — Watering before/after pairing | ⬜ Gated on Phase 3 | [dashboard_plan.md](dashboard_plan.md#d4--watering-history--beforeafter-pairing) |
 | Software | **D5** — Polish (sensor health, predictions, pump-effectiveness flag) | ⬜ Pending | [dashboard_plan.md](dashboard_plan.md#d5--polish-sensor-health-predicted-next-watering-pump-effectiveness-flag) |
 | Software | **D6** — Surface convergence (preview ↔ live) | 🔵 Deferred until real data flows | [dashboard_plan.md](dashboard_plan.md#public-deployment-surface-github-pages) |
+| Software | **D7** — Visual polish (emoji garden index, v1) | ⏳ Active 2026-04-27 — emoji-as-placeholder, building now | [dashboard_plan.md](dashboard_plan.md#d7--visual-polish-pixel-garden-index--new-2026-04-27) |
+| Software | **D7b** — Garden event-driven motion (Xiaoxia walks, watering animation) | 🔵 Deferred until D7 v1 ships + real readings flow | [dashboard_plan.md](dashboard_plan.md#d7b--event-driven-motion-deferred-until-real-readings-flow) |
+| Software | **D7c** — Replace emoji with custom pixel sprites (Gemini-generated) | 🔵 Deferred — needs Google Cloud billing | [dashboard_plan.md](dashboard_plan.md#sprite-generation--gemini-25-flash-image-nanobanana--deferred-to-d7c) |
 
 Legend: ✅ done · ⏳ active · 🟡 partial · ⬜ pending · 🔵 deferred
 

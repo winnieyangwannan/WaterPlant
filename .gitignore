@@ -16,3 +16,8 @@ server/*.log
 .vscode/
 .idea/
 *.swp
+
+# Secrets — API keys etc. Never commit.
+.env
+.env.*
+!.env.example

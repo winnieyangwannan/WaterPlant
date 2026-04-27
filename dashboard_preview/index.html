@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WaterPlant · Winnie's Plants</title>
+<title>WaterPlant · Winnie's Garden</title>
 <style>
   :root {
     --bg: #f7f4ed;
@@ -23,6 +23,13 @@
     --water-soft: #dcebf3;
     --warn: #b46a1a;
     --warn-soft: #faeeda;
+
+    /* Garden scene */
+    --sky-top:    #d9ecf3;
+    --sky-bot:    #f6efd7;
+    --grass-top:  #b9d39a;
+    --grass-bot:  #7ea25c;
+    --dirt:       #8a6a4a;
     --shadow: 0 1px 3px rgba(60, 50, 30, 0.06), 0 8px 24px rgba(60, 50, 30, 0.04);
     --shadow-hover: 0 4px 12px rgba(60, 50, 30, 0.10), 0 16px 36px rgba(60, 50, 30, 0.08);
   }
@@ -45,6 +52,12 @@
       --water-soft: rgba(133, 183, 235, 0.16);
       --warn: #f0b070;
       --warn-soft: rgba(240, 176, 112, 0.18);
+
+      --sky-top:    #2c3a4a;
+      --sky-bot:    #3d4337;
+      --grass-top:  #4a6b3e;
+      --grass-bot:  #2f4527;
+      --dirt:       #5a4530;
       --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.2);
       --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 36px rgba(0, 0, 0, 0.3);
     }
@@ -63,53 +76,33 @@
     overflow-x: hidden;
   }
 
-  /* Animated background leaves — same as plant page */
-  .bg-leaves { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .bg-leaves span {
-    position: absolute;
-    font-size: 32px;
-    opacity: 0.10;
-    animation: drift 22s ease-in-out infinite;
-    filter: saturate(0.8);
-  }
-  .bg-leaves .l1 { top: 8%;  left: 4%;   animation-duration: 18s; animation-delay: -2s;  font-size: 28px; }
-  .bg-leaves .l2 { top: 22%; right: 6%;  animation-duration: 24s; animation-delay: -7s;  font-size: 36px; }
-  .bg-leaves .l3 { top: 48%; left: 2%;   animation-duration: 20s; animation-delay: -11s; font-size: 30px; }
-  .bg-leaves .l4 { top: 65%; right: 3%;  animation-duration: 26s; animation-delay: -4s;  font-size: 26px; }
-  .bg-leaves .l5 { top: 82%; left: 6%;   animation-duration: 19s; animation-delay: -14s; font-size: 32px; }
-  .bg-leaves .l6 { top: 35%; left: 50%;  animation-duration: 28s; animation-delay: -9s;  font-size: 22px; opacity: 0.06; }
-  @keyframes drift {
-    0%, 100% { transform: translateY(0) rotate(-4deg); }
-    50%      { transform: translateY(-26px) rotate(8deg); }
-  }
-
-  .page { max-width: 920px; margin: 0 auto; padding: 56px 28px 56px; position: relative; z-index: 1; }
+  .page { max-width: 980px; margin: 0 auto; padding: 40px 24px 48px; position: relative; z-index: 1; }
   section { animation: rise 0.7s ease-out backwards; }
   section:nth-of-type(1) { animation-delay: 0.05s; }
-  section:nth-of-type(2) { animation-delay: 0.18s; }
+  section:nth-of-type(2) { animation-delay: 0.15s; }
   @keyframes rise {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Header */
-  .site-header { margin: 0 0 40px; }
-  .site-header h1 {
-    font-size: 44px; font-weight: 500; margin: 0 0 6px;
+  /* Header (compact — the garden is the hero) */
+  .site-header { margin: 0 0 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .site-header .titles h1 {
+    font-size: 32px; font-weight: 500; margin: 0 0 4px;
     letter-spacing: -0.02em;
-    display: flex; align-items: center; gap: 14px;
+    display: flex; align-items: center; gap: 10px;
   }
   .site-header h1 .leaf-emoji {
-    font-size: 38px; animation: sway 5s ease-in-out infinite;
+    font-size: 26px; animation: sway 5s ease-in-out infinite;
     transform-origin: bottom center; display: inline-block;
   }
   @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-  .site-header .tagline { font-size: 16px; color: var(--text-2); margin: 0 0 16px; }
+  .site-header .tagline { font-size: 14px; color: var(--text-2); margin: 0; }
   .site-header .summary {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--green-soft); color: var(--green);
     border-radius: 999px; padding: 6px 14px;
-    font-size: 13px; font-weight: 500;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
   }
   .live-dot {
     display: inline-block; width: 7px; height: 7px;
@@ -121,73 +114,233 @@
     50%      { transform: scale(1.3); opacity: 0.7; }
   }
 
-  /* Plant cards */
-  .label {
-    font-size: 12px; color: var(--text-3); margin: 0 0 14px;
-    letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;
-  }
-  .plant-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 18px;
-  }
-  .plant-card {
-    display: block; text-decoration: none; color: inherit;
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 18px; overflow: hidden;
+  /* === GARDEN SCENE === */
+  .garden {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    min-height: 420px;
+    border-radius: 24px;
+    overflow: hidden;
     box-shadow: var(--shadow);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 0.5px solid var(--border);
+    background:
+      linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bot) 58%, var(--grass-top) 58%, var(--grass-bot) 100%);
+    isolation: isolate;
   }
-  .plant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
-  .plant-card .thumb {
-    aspect-ratio: 4 / 3; background: var(--surface-2);
-    overflow: hidden; position: relative;
+  /* Soft horizon glow */
+  .garden::before {
+    content: ""; position: absolute; left: 0; right: 0;
+    top: 50%; height: 18%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255, 235, 180, 0.6), transparent 70%);
+    pointer-events: none; z-index: 1;
   }
-  .plant-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
-  .plant-card:hover .thumb img { transform: scale(1.04); }
-  .plant-card .thumb.no-photo img { display: none; }
-  .plant-card .thumb.no-photo {
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, var(--surface-2), var(--green-soft));
-    color: var(--text-3); font-size: 14px;
+  /* Grass blades (subtle CSS pattern) */
+  .garden::after {
+    content: ""; position: absolute; inset: 58% 0 0 0;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,255,255,0.10) 1px, transparent 2px),
+      radial-gradient(circle at 30% 60%, rgba(0,0,0,0.06)   1px, transparent 2px),
+      radial-gradient(circle at 65% 30%, rgba(255,255,255,0.10) 1px, transparent 2px),
+      radial-gradient(circle at 85% 70%, rgba(0,0,0,0.05)   1px, transparent 2px);
+    background-size: 80px 80px;
+    pointer-events: none; z-index: 1;
   }
-  .plant-card .thumb.no-photo .leaf-big {
-    font-size: 64px; animation: sway 4s ease-in-out infinite;
-    transform-origin: bottom center;
-  }
-  .plant-card .body { padding: 16px 20px 18px; }
-  .plant-card h2 {
-    font-size: 22px; font-weight: 500; margin: 0 0 4px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .plant-card h2 .leaf-emoji {
-    font-size: 18px; animation: sway 5s ease-in-out infinite;
-    transform-origin: bottom center; display: inline-block;
-  }
-  .plant-card .species { font-size: 13px; color: var(--text-2); margin: 0 0 14px; font-style: italic; }
-  .plant-card .stats { display: flex; gap: 8px; flex-wrap: wrap; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 500;
-  }
-  .pill-water { background: var(--water-soft); color: var(--water); }
-  .pill-ok    { background: var(--green-soft); color: var(--green); }
-  .pill-warn  { background: var(--warn-soft);  color: var(--warn); }
 
-  /* Empty slot for future plants */
-  .add-slot {
-    border: 1.5px dashed var(--border-2); border-radius: 18px;
-    aspect-ratio: 4 / 3.5;
-    display: flex; align-items: center; justify-content: center; flex-direction: column;
-    color: var(--text-3); font-size: 13px; text-align: center; padding: 20px;
-    background: transparent;
+  /* Sky decorations */
+  .sky-deco { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+  .sky-deco span { position: absolute; display: inline-block; }
+  .sun {
+    top: 6%; right: 7%; font-size: 64px;
+    animation: spin 60s linear infinite, glow 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 14px rgba(255, 200, 100, 0.55));
   }
-  .add-slot .plus { font-size: 36px; opacity: 0.5; line-height: 1; }
-  .add-slot p { margin: 10px 0 0; }
-  .add-slot code { font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; background: var(--surface); padding: 2px 6px; border-radius: 4px; border: 0.5px solid var(--border); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 14px rgba(255, 200, 100, 0.55)); }
+    50%      { filter: drop-shadow(0 0 22px rgba(255, 220, 130, 0.75)); }
+  }
+  .cloud-1 { top: 12%; left: 8%;  font-size: 48px; opacity: 0.85; animation: drift-r 38s linear infinite; }
+  .cloud-2 { top: 22%; left: 38%; font-size: 36px; opacity: 0.75; animation: drift-r 52s linear infinite; animation-delay: -18s; }
+  .cloud-3 { top: 8%;  left: 60%; font-size: 42px; opacity: 0.80; animation: drift-r 44s linear infinite; animation-delay: -28s; }
+  @keyframes drift-r {
+    0%   { transform: translateX(-20px); }
+    100% { transform: translateX(120%); }
+  }
+  .bird { top: 18%; left: 50%; font-size: 22px; opacity: 0.7; animation: bird-fly 30s linear infinite; animation-delay: -10s; }
+  @keyframes bird-fly {
+    0%   { transform: translate(-30vw, 0)    scaleX(1); }
+    49%  { transform: translate(70vw, -10px) scaleX(1); }
+    50%  { transform: translate(70vw, -10px) scaleX(-1); }
+    100% { transform: translate(-30vw, 0)    scaleX(-1); }
+  }
+
+  /* Ambient ground decorations */
+  .ground-deco { position: absolute; inset: 58% 0 0 0; pointer-events: none; z-index: 2; }
+  .ground-deco span { position: absolute; display: inline-block; }
+  .flower-1 { left: 12%; bottom: 8%;  font-size: 24px; animation: sway 6s ease-in-out infinite; transform-origin: bottom center; }
+  .flower-2 { left: 78%; bottom: 14%; font-size: 22px; animation: sway 7s ease-in-out infinite; transform-origin: bottom center; animation-delay: -2s; }
+  .flower-3 { left: 90%; bottom: 6%;  font-size: 20px; animation: sway 5s ease-in-out infinite; transform-origin: bottom center; animation-delay: -3s; }
+  .rock-1   { left: 32%; bottom: 4%;  font-size: 22px; opacity: 0.85; }
+  .rock-2   { left: 62%; bottom: 10%; font-size: 18px; opacity: 0.85; }
+  .grass-1  { left: 5%;  bottom: 2%;  font-size: 22px; }
+  .grass-2  { left: 48%; bottom: 1%;  font-size: 22px; }
+  .grass-3  { left: 96%; bottom: 18%; font-size: 18px; transform: translateX(-100%); }
+
+  /* Plants in the scene */
+  .plant {
+    position: absolute;
+    text-decoration: none; color: inherit;
+    display: inline-flex; flex-direction: column; align-items: center;
+    z-index: 5;
+    transform: translate(-50%, -100%);
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+  .plant:hover { transform: translate(-50%, calc(-100% - 6px)); filter: drop-shadow(0 8px 14px rgba(0,0,0,0.18)); }
+  .plant:focus-visible { outline: none; }
+  .plant:focus-visible .plant-glyph { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
+  .plant-glyph {
+    font-size: 96px; line-height: 1;
+    animation: sway 5s ease-in-out infinite;
+    transform-origin: bottom center;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+  }
+  .plant-label {
+    margin-top: 4px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+    background: var(--surface); color: var(--text);
+    padding: 3px 10px; border-radius: 999px;
+    border: 0.5px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+    opacity: 0; transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+  }
+  .plant:hover .plant-label, .plant:focus-visible .plant-label { opacity: 1; transform: translateY(0); }
+
+  /* Floating health icon */
+  .plant .health-icon {
+    position: absolute;
+    top: -34px; left: 50%; transform: translateX(-50%);
+    font-size: 22px;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 999px; padding: 4px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    animation: bob 2.5s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-6px); }
+  }
+  .health-icon.is-thirsty  { color: var(--water); }
+  .health-icon.is-watered  { color: var(--gold); }
+  .health-icon.is-offline  { color: var(--warn); border-color: var(--warn); }
+
+  /* Specific plant placements */
+  .plant-goldie { left: 28%; top: 88%; }
+
+  /* Empty plot (forward-compat for plant 2) */
+  .empty-plot {
+    position: absolute; left: 70%; top: 88%;
+    transform: translate(-50%, -100%);
+    display: inline-flex; flex-direction: column; align-items: center;
+    text-decoration: none; color: var(--text-3);
+    z-index: 4;
+  }
+  .empty-plot .pot {
+    width: 86px; height: 70px;
+    background:
+      radial-gradient(ellipse at 50% 18%, rgba(0,0,0,0.18) 0 18%, transparent 22%),
+      linear-gradient(to bottom, color-mix(in srgb, var(--dirt) 80%, #000 0%) 0%, var(--dirt) 100%);
+    clip-path: polygon(8% 0, 92% 0, 80% 100%, 20% 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7); font-size: 38px; font-weight: 300; line-height: 1;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  .empty-plot .pot::after { content: "+"; }
+  .empty-plot .empty-label {
+    margin-top: 6px; font-size: 11px; padding: 2px 8px;
+    background: var(--surface); border-radius: 999px; border: 0.5px solid var(--border);
+    color: var(--text-3);
+  }
+
+  /* Xiaoxia the lobster */
+  .xiaoxia {
+    position: absolute;
+    left: 50%; top: 92%;
+    transform: translate(-50%, -100%);
+    display: inline-flex; flex-direction: column; align-items: center;
+    z-index: 6;
+    pointer-events: auto;
+  }
+  .xiaoxia .xx-glyph {
+    font-size: 56px; line-height: 1;
+    animation: lobster-wiggle 3s ease-in-out infinite;
+    transform-origin: bottom center;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.18));
+    cursor: pointer;
+  }
+  @keyframes lobster-wiggle {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(3deg)  translateY(-3px); }
+  }
+  .xiaoxia .xx-label {
+    margin-top: 4px;
+    font-size: 11px; color: var(--text-2);
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 999px; padding: 2px 8px;
+  }
+  .xiaoxia .xx-bubble {
+    position: absolute;
+    bottom: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 8px 12px;
+    font-size: 12px; color: var(--text); white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .xiaoxia .xx-bubble::after {
+    content: ""; position: absolute;
+    top: 100%; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: var(--surface);
+  }
+  .xiaoxia:hover .xx-bubble { opacity: 1; }
+
+  /* Stat strip below garden */
+  .stat-strip {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .stat-strip .stat {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 12px 16px;
+    box-shadow: var(--shadow);
+  }
+  .stat .label { font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 4px; }
+  .stat .value { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; display: flex; align-items: center; gap: 6px; }
+  .stat .value small { font-size: 12px; font-weight: 400; color: var(--text-2); }
+
+  /* Plant directory (below the hero — gives screen-readers and keyboard users clean access) */
+  .plant-list { margin-top: 28px; }
+  .plant-list .label { font-size: 12px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; margin: 0 0 12px; }
+  .plant-list ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  .plant-list a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--surface); border: 0.5px solid var(--border);
+    text-decoration: none; color: var(--text);
+    font-size: 14px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .plant-list a:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+  .plant-list a .li-glyph { font-size: 18px; }
+  .plant-list a .species { color: var(--text-3); font-style: italic; font-size: 12px; }
 
   footer {
-    margin-top: 60px; padding-top: 20px;
+    margin-top: 44px; padding-top: 18px;
     border-top: 0.5px solid var(--border);
     font-size: 12px; color: var(--text-3); text-align: center;
   }
@@ -196,9 +349,12 @@
   footer .heart { color: var(--green); animation: pulse 2.5s ease-in-out infinite; display: inline-block; }
 
   @media (max-width: 720px) {
-    .page { padding: 36px 18px 40px; }
-    .site-header h1 { font-size: 36px; }
-    .plant-grid { grid-template-columns: 1fr; gap: 14px; }
+    .page { padding: 28px 14px 36px; }
+    .site-header h1 { font-size: 26px; }
+    .garden { min-height: 320px; aspect-ratio: 4 / 3; }
+    .plant-glyph { font-size: 72px; }
+    .xiaoxia .xx-glyph { font-size: 44px; }
+    .empty-plot .pot { width: 64px; height: 52px; font-size: 28px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -207,55 +363,99 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
-    .bg-leaves { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="bg-leaves" aria-hidden="true">
-  <span class="l1">🌿</span>
-  <span class="l2">🍃</span>
-  <span class="l3">🌱</span>
-  <span class="l4">🌿</span>
-  <span class="l5">🍃</span>
-  <span class="l6">🌿</span>
-</div>
-
 <div class="page">
 
   <section class="site-header">
-    <h1>Winnie's plants <span class="leaf-emoji">🌿</span></h1>
-    <p class="tagline">A small WaterPlant household. Click any plant for full profile, moisture chart, and watering history.</p>
+    <div class="titles">
+      <h1>Winnie's garden <span class="leaf-emoji">🌿</span></h1>
+      <p class="tagline">Hover any plant for details · click to open its profile</p>
+    </div>
     <span class="summary"><span class="live-dot"></span> 1 plant tracked · all sensors healthy</span>
   </section>
 
   <section>
-    <p class="label">Plants</p>
-    <div class="plant-grid">
+    <div class="garden" role="img" aria-label="A garden scene with Goldie the golden pothos and Xiaoxia the lobster gardener.">
 
-      <a class="plant-card" href="1.html">
-        <div class="thumb">
-          <img src="photos/1/hero.jpg" alt="Goldie the Golden Pothos" onerror="this.parentElement.classList.add('no-photo')">
-          <span class="leaf-big">🪴</span>
-        </div>
-        <div class="body">
-          <h2>Goldie <span class="leaf-emoji">🌿</span></h2>
-          <p class="species">Epipremnum aureum (Golden Pothos)</p>
-          <div class="stats">
-            <span class="pill pill-water">💧 42%</span>
-            <span class="pill pill-ok">5d ago</span>
-            <span class="pill pill-ok"><span class="live-dot"></span> healthy</span>
-          </div>
-        </div>
+      <!-- Sky -->
+      <div class="sky-deco" aria-hidden="true">
+        <span class="sun">🌞</span>
+        <span class="cloud-1">☁️</span>
+        <span class="cloud-2">☁️</span>
+        <span class="cloud-3">☁️</span>
+        <span class="bird">🐦</span>
+      </div>
+
+      <!-- Ground decorations -->
+      <div class="ground-deco" aria-hidden="true">
+        <span class="grass-1">🌾</span>
+        <span class="grass-2">🌾</span>
+        <span class="grass-3">🌾</span>
+        <span class="flower-1">🌸</span>
+        <span class="flower-2">🌷</span>
+        <span class="flower-3">🌼</span>
+        <span class="rock-1">🪨</span>
+        <span class="rock-2">🪨</span>
+      </div>
+
+      <!-- Goldie (currently healthy → no floating icon) -->
+      <a class="plant plant-goldie" href="1.html" aria-label="Goldie, golden pothos, healthy, 42% moisture, last watered 5 days ago">
+        <span class="plant-glyph" aria-hidden="true">🪴</span>
+        <span class="plant-label">Goldie · 42% 💧</span>
       </a>
 
-      <div class="add-slot">
-        <span class="plus">+</span>
-        <p>Add another plant by editing <code>plants/&lt;id&gt;.yaml</code></p>
+      <!-- Empty plot for plant 2+ -->
+      <a class="empty-plot" href="https://github.com/winnieyangwannan/WaterPlant#adding-a-plant" aria-label="Add another plant" title="Add another plant">
+        <span class="pot" aria-hidden="true"></span>
+        <span class="empty-label">add a plant</span>
+      </a>
+
+      <!-- Xiaoxia the lobster gardener -->
+      <div class="xiaoxia" aria-label="Xiaoxia the lobster gardener">
+        <span class="xx-bubble">All plants healthy today 🦞</span>
+        <span class="xx-glyph" role="img" aria-label="lobster gardener">🦞</span>
+        <span class="xx-label">Xiaoxia</span>
       </div>
 
     </div>
+
+    <!-- Quick-glance stats below the scene -->
+    <div class="stat-strip" aria-label="Garden overview">
+      <div class="stat">
+        <p class="label">Plants tracked</p>
+        <p class="value">1 <small>· room for more</small></p>
+      </div>
+      <div class="stat">
+        <p class="label">Avg moisture</p>
+        <p class="value">42% <small>healthy band</small></p>
+      </div>
+      <div class="stat">
+        <p class="label">Last watered</p>
+        <p class="value">5d ago <small>Goldie</small></p>
+      </div>
+      <div class="stat">
+        <p class="label">Sensor health</p>
+        <p class="value">🟢 <small>1 of 1 online</small></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accessible plant directory (also useful on narrow screens) -->
+  <section class="plant-list">
+    <p class="label">Plants in this garden</p>
+    <ul>
+      <li>
+        <a href="1.html">
+          <span class="li-glyph">🪴</span>
+          <span>Goldie</span>
+          <span class="species">Epipremnum aureum</span>
+        </a>
+      </li>
+    </ul>
   </section>
 
   <footer>

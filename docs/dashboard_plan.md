@@ -341,6 +341,92 @@ Logger pairs each `PUMP_OFF` row with the next regular reading from the same sen
 
 All derived from data we already have. Verification: pull the sensor → page shows "no data for N min". Run the simulator with a known dry-down slope → predicted next-watering date matches.
 
+### D7 — Visual polish (pixel garden index) — new 2026-04-27
+
+Goal: replace the current cards-style index with an **open pixel-art garden** where each plant lives as a cartoon avatar in a single shared scene, **Xiaoxia roams the garden as a small lobster sprite**, and each plant's health is shown via **floating icons** above its avatar. Inspired by pixel-art "headquarters" UIs where characters share one bounded space (see e.g. screenshot in the 2026-04-27 design discussion).
+
+The plant detail pages (`<id>.html`) stay as the data-rich view — chart, watering history, care tips. Garden = front door / glanceable; per-plant page = vitals + history. Two surfaces, two jobs.
+
+#### Locked-in design (2026-04-27)
+
+- **Layout — open garden.** Single bounded scene with all plants placed in it; no rooms/grid. Plants and Xiaoxia share one space the way the inspiration screenshot has agents sharing one floor plan.
+- **Per-plant avatars.** Each plant gets a unique pixel sprite — Goldie = pothos sprite for v1. New plants get their own sprite generated when Xiaoxia adds the plant via the add-plant flow (D2).
+- **Xiaoxia = a literal small lobster.** Pink/red shell, two claws, stalked eyes. The visual joke matches the playful name and stays distinctive against green plants in the scene.
+- **Health indicators — floating icons only.** A small icon hovers above each plant when its state is non-healthy: 💧 thirsty (moisture below threshold), ✨ just-watered (within last hour), ⚠ sensor offline (no reading for >2× `READ_INTERVAL_MS`). No icon = healthy. Sprite-pose changes and color tints are explicitly *not* used in v1 — kept simple so the scene reads at a glance.
+- **Animation tier — static first, event-driven later.** v1 ships with sprites at fixed positions and static floating-icon badges; no movement, no walk cycle, no watering animation. Event-driven motion is split out into **D7b** (see below) and gated on real sensor data flowing.
+- **Mobile — out of scope for v1.** The garden is a desktop/tablet experience. A list-view fallback for narrow viewports can be added later; not part of this phase.
+
+#### v1 uses emoji as placeholder "sprites" (decided 2026-04-27)
+
+Before any custom sprite generation lands, **D7 v1 ships with Unicode emoji** as plant/Xiaoxia/icon stand-ins (sources: <https://emojipedia.org/>). This unblocks the layout work without depending on Gemini billing or hand-drawn assets.
+
+Mapping for v1:
+
+| Asset | Emoji | Notes |
+|---|---|---|
+| Xiaoxia | 🦞 | The literal-lobster decision still applies; emoji reads as "lobster" instantly. |
+| Goldie | 🪴 | Generic potted plant — fine while she's the only resident. |
+| Future plants | 🌵 🌿 🌱 🌷 🌻 🌳 🪻 | Pick something distinctive per plant when each is added. |
+| Thirsty icon | 💧 | Shown above plant when moisture < `MOISTURE_LOW`. |
+| Just-watered icon | ✨ | Shown for ~1 hour after a `PUMP_OFF`. |
+| Sensor offline icon | ⚠️ | Shown when no reading for >2× `READ_INTERVAL_MS`. |
+| Garden ambient | 🌞 ☁️ 🌸 🪨 | Optional decorative elements scattered in the scene. |
+
+Emojis go in the HTML as plain text inside spans with `font-size: 64px` (or larger for hero placement). The garden background is a pure-CSS gradient (sky + ground) — no asset dependency.
+
+**Migration path to real sprites (later):** the emoji stays in markup as a `data-fallback` attribute, and a single CSS swap (`.sprite[data-name="xiaoxia"] { background-image: url(sprites/xiaoxia.png); }`) replaces the emoji with the real PNG once the sprite library exists. No HTML rewrite needed.
+
+#### Sprite generation — Gemini 2.5 Flash Image (nanobanana) — deferred to D7c
+
+All sprites are generated via the Generative Language API model `gemini-2.5-flash-image`. Prompts live in `prompts/sprites.md` (to be added in this phase) so the entire library is reproducible — if we redesign Xiaoxia or repaint Goldie, we re-run the same prompts and commit the new PNGs.
+
+API key is loaded from a gitignored `.env` at the repo root (`GEMINI_API_KEY=...`). Generation is wrapped in `server/gen_sprites.py <name>`, which reads the prompt for `<name>` from `prompts/sprites.md`, calls the API, and saves the PNG under `dashboard_preview/sprites/<name>.png`. Idempotent — re-running overwrites the same file.
+
+> **Open question (2026-04-27):** the Gemini image model has free-tier quota = 0; a Google Cloud project with billing enabled is required. Pending decision: (1) enable billing on the existing project (~$0.04/image, ~$1.20 for the full v1 library), (2) fall back to driving AI Studio's web UI manually through the Chrome extension (free, more clicks), or (3) switch to a different paid image API (OpenAI gpt-image-1, Replicate, etc.). Resolved-by date: before any sprite-generation work starts. Tracked separately in the working task list.
+
+#### Sprite library (v1 vs deferred)
+
+| Sprite | Purpose | v1? |
+|---|---|---|
+| `garden_bg` | Background scene (soil, sky, ambient elements) | ✅ |
+| `xiaoxia_idle` | Lobster, standing, single frame | ✅ |
+| `plant_1` (Goldie) | Healthy pose | ✅ |
+| `icon_thirsty` / `icon_watered` / `icon_offline` | Floating badges | ✅ |
+| `xiaoxia_walk_n/e/s/w` | 4-directional walk cycle, ~4 frames each | ⬜ D7b |
+| `xiaoxia_water` | Watering pose with droplets | ⬜ D7b |
+| `plant_<id>_droopy` | Per-plant thirsty pose | ⬜ D7b |
+| `plant_<id>` for plants 2+ | One per plant as they join | rolling, generated at add-plant time |
+
+#### Implementation steps (v1)
+
+1. Resolve the image-API billing/path question.
+2. Author `prompts/sprites.md` with one prompt block per v1 sprite — pinned style guide ("16-color palette, transparent background, 64×64 px, three-quarter view, soft outline") shared across all entries so the library looks coherent.
+3. Add `server/gen_sprites.py` (reads the prompt file, calls Gemini, writes PNGs).
+4. Generate the v1 sprite set; commit PNGs to `dashboard_preview/sprites/`.
+5. Replace `dashboard_preview/index.html` with the open-garden layout:
+   - One hero scene at the top — `garden_bg` as `<img>` or CSS background.
+   - Plants positioned absolutely over the scene, each wrapped in an `<a href="<id>.html">` so the click-through to detail pages still works.
+   - Floating health icon shown above a plant only when its state is non-healthy (data baked into the static page for now; wired to real readings once D1/D3b are live).
+   - Lobster Xiaoxia placed at a fixed spot (likely lower-left corner — feels like she's "on her way" through the garden).
+   - Existing summary line ("1 plant tracked · all sensors healthy") and footer move below the scene.
+6. Keep the per-plant detail page (`1.html`) untouched in this phase — visual polish there is a separate later pass.
+
+#### Verification
+
+- Open new `index.html` locally; confirm Goldie + Xiaoxia render in the scene, the click-through to `1.html` still works, no console errors.
+- Push to `main`; confirm GitHub Pages deploys cleanly and the public URL shows the new garden.
+- Take a screenshot for the session log (`docs/sessions/<date>-d7-pixel-garden.md`).
+
+#### D7b — Event-driven motion (deferred until real readings flow)
+
+After the static garden ships and D1/D3b are live with real data:
+
+- **Xiaoxia walks** to whichever plant just emitted a reading. CSS keyframe path between sprite positions, sprite-frame stepping for the walk cycle.
+- **Watering animation** when a `PUMP_ON` row lands — Xiaoxia at the plant, water droplets, sparkle on `PUMP_OFF`.
+- **Plant sprite swap** to a `_droopy` pose when moisture < `MOISTURE_LOW`; back to healthy when above.
+
+Activation needs a small JS poller hitting a JSON status endpoint on the VPS (same SQLite-derived data the live dashboard reads). Out of scope for D7 v1.
+
 ### Deferred (not v1)
 
 Manual `/water` command (firmware change), light/temperature sensors (new hardware), multi-tenant.
@@ -376,3 +462,13 @@ Photo storage is unbounded. A Pi-style 16GB VPS disk fills surprisingly fast if 
 6. **Site landing page**: a plant-index `dashboard_preview/index.html` with one card per plant, each card linking to `/<id>.html`. Forward-compatible for adding plant 2.
 7. **Two HTML surfaces are intentional**: `dashboard_preview/` (static, simulated/snapshot data, public via Pages) and `server/templates/*.j2` rendered to `/var/www/waterplant/` (live SQLite data, behind basic auth on the VPS). They render the same layout. Convergence (snapshotting live → preview, or render.py emitting both) is deferred to D6 once real readings flow.
 8. **Recovery from Xiaoxia's 2026-04-27 commits**: Restore Arduino firmware files (`WaterPlant.ino`, `config.h`, `moisture.h`, `pump.h`, `calibrate/calibrate.ino`) and `dashboard_preview/1.html` from `0db2bf2`; verify and restore `CLAUDE.md`, `README.md`, `lesson/Openclaw_Arduino_Serial_Monitor.md`, `tests/phase1_calibration.md`, `tools/generate_diagram.py` if also stub-replaced; add `.gitignore` covering `server/.venv/`, `__pycache__/`, `*.pyc`, `.DS_Store`; `git rm --cached -r server/.venv/`; fix the misleading "Dummy" comments in `server/schema.sql` and `server/requirements.txt`. Done as commit 1 of the recovery sequence; deploy workflow + index page = commit 2.
+
+### 2026-04-27 (visual polish — D7 design)
+
+9. **Index becomes a pixel garden, not a card grid.** The current `dashboard_preview/index.html` (cards-style) is replaced by an open pixel-art scene. Per-plant detail pages (`<id>.html`) keep their existing chart/history layout. *Why:* the cards version is functional but generic; the garden gives the project an identity (Xiaoxia as a character, plants as avatars) and a hook for event-driven animation later.
+10. **Layout: open garden.** All plants share one scene; no rooms grid. *Why:* matches the inspiration screenshot's vibe, scales to ~10 plants in a single household, and gives Xiaoxia somewhere to walk in D7b.
+11. **Xiaoxia is a literal small lobster.** Pink/red shell, two claws. *Why:* matches the playful name, distinctive against green plants, makes "Xiaoxia is watering Bertha" a visually memorable moment in D7b.
+12. **Health indicators are floating icons, not pose changes or color tints.** 💧 thirsty / ✨ just-watered / ⚠ sensor offline / nothing = healthy. *Why:* keeps v1 cheap (one sprite per plant, not multiple poses) and the icons read at a glance even if you're not familiar with the plant.
+13. **Animation tier: static first, event-driven later (D7b).** v1 ships zero motion in the garden; movement waits for real sensor data. *Why:* avoids burning time on walk cycles and watering animations before we know the data wiring works, and lets us ship a visible improvement now.
+14. **No mobile fallback in D7 v1.** Garden is desktop/tablet only. *Why:* fitting an open garden into a 360 px wide column is a separate design problem; punting keeps this phase scoped.
+15. **Sprite source: Gemini 2.5 Flash Image (nanobanana) via API.** Prompts pinned in `prompts/sprites.md`; generation script at `server/gen_sprites.py`; PNGs committed under `dashboard_preview/sprites/`. *Why:* reproducible (re-run a prompt → same kind of sprite), version-controlled prompts give us a record of every asset's intent, and the API is cheap enough (~$1.20 for the full v1 library) that we can iterate on prompts freely.
