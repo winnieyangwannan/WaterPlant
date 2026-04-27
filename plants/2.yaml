@@ -1,0 +1,53 @@
+id: 2
+name: Fernando
+species: Nephrolepis exaltata (Boston Fern)
+sensor_idx: 1
+pump_idx: 1
+added_at: 2026-04-27
+
+# Cartoon-sprite generation inputs — used by the Gemini image-to-image flow
+# documented in prompts/sprites.md. Edit + re-run to regenerate the avatar.
+sprite:
+  reference_photo: plants/2_fernando.HEIC
+  output: dashboard_preview/sprites/2.png
+  preserve: |
+    - Long arching pinnate fronds (each frond is a central rib with many small
+      leaflets along both sides)
+    - Cascading habit — fronds spread outward and droop downward in all
+      directions, creating a shaggy fountain shape
+    - Bright fresh-green color of healthy fronds, with a few older fronds
+      showing slight yellowing/browning at the tips for natural character
+    - Lush, full appearance: many fronds emerging from the central crown
+    - Slight asymmetry — some fronds longer than others, just like the real plant
+  real_pot: "a plain black plastic pot"
+  artistic_pot: |
+    a beautiful artistic terracotta clay pot in warm rust-orange tones with
+    subtle decorative band detail near the rim. Visible clay texture and a
+    slight gradient for depth. Polished mobile-game collectible style.
+
+# Hand-written for now — Boston ferns have specific quirks (humidity, water
+# love) that are worth pinning. Will be regenerated through prompts/care_tips.md
+# once that template is finalized.
+care_tips:
+  watering: "Keep soil consistently moist — water every 3–5 days, never let it dry out completely. Boston ferns drop fronds fast when underwatered. Bottom-water occasionally to keep the root ball evenly hydrated."
+  sunlight: "Bright, indirect light. Direct sun will scorch the fronds. Tolerates lower light but grows slower; rotate weekly so all sides stay full."
+  soil: "Rich, well-draining potting mix with extra peat or coco coir for moisture retention. Slightly acidic (pH 5.5–6.5). Repot every 2 years or when roots fill the pot."
+  temperature: "60–75°F (16–24°C), with humidity above 50%. Mist daily or use a humidifier during winter heating — dry air browns the leaflet tips."
+
+# Photo files live on the VPS at /var/lib/waterplant/photos/<id>/<filename>.
+# Each entry is referenced from here so the manifest is versioned.
+photos:
+  - path: 2/2026-04-27_hero.jpg
+    taken_at: 2026-04-27
+    caption: "Hanging out on the kitchen counter — fronds spreading dramatically, a few tips browning from dry winter air."
+    is_hero: true
+
+# Chronological notes, newest first. Added by Xiaoxia when you tell her things
+# like "Fernando got fertilized" or "trimmed back a dead frond".
+notes:
+  - date: 2026-04-25
+    body: "Trimmed two browned fronds from the back. New fiddleheads unfurling near the crown — sign humidity is finally back up."
+  - date: 2026-04-12
+    body: "Set up a pebble tray underneath after losing a few leaflet tips to dry air. Misting daily."
+  - date: 2026-03-20
+    body: "Brought home from the nursery. Already a big lush specimen — needs lots of humidity to stay this good."

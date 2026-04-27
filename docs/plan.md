@@ -1,6 +1,6 @@
 # WaterPlant — Master Plan
 
-> **Status (2026-04-27):** Hardware Phase 1 done · Phase 2 next · Public dashboard live at <https://winnieyangwannan.github.io/WaterPlant/>
+> **Status (2026-04-27):** Hardware Phase 1 done · Phase 2 next · 2 plants in the household (Goldie + Fernando) · Public dashboard live at <https://winnieyangwannan.github.io/WaterPlant/>
 
 This is the **entry point** for the WaterPlant project. The repo is split across two parallel tracks plus a chronological session log. Read this doc first to figure out where to look for what.
 
@@ -70,7 +70,8 @@ Legend: ✅ done · ⏳ active · 🟡 partial · ⬜ pending · 🔵 deferred
 | Quick repo orientation for newcomers | [`README.md`](../README.md) |
 | Per-plant profile data | [`plants/<id>.yaml`](../plants/) |
 | Rules of the road for Xiaoxia (LLM agent) | [`dashboard_plan.md` § Rules of the road](dashboard_plan.md#rules-of-the-road-for-xiaoxia) |
-| **Generating a cartoon avatar for a new plant** | [`prompts/sprites.md`](../prompts/sprites.md) (style guide + template + worked example) |
+| **Adding a new plant to the garden** (full protocol) | [`docs/runbooks/add-plant.md`](runbooks/add-plant.md) |
+| Generating a cartoon avatar for a new plant | [`prompts/sprites.md`](../prompts/sprites.md) (style guide + template + worked example) |
 | Per-plant sprite inputs (preserve list, artistic pot) | `sprite:` block in [`plants/<id>.yaml`](../plants/) |
 
 ---

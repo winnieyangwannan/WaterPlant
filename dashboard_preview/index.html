@@ -242,12 +242,14 @@
   .health-icon.is-offline  { color: var(--warn); border-color: var(--warn); }
 
   /* Specific plant placements */
-  .plant-goldie { left: 28%; top: 88%; }
+  .plant-goldie   { left: 22%; top: 88%; }
+  .plant-fernando { left: 75%; top: 88%; }
 
-  /* Empty plot (forward-compat for plant 2) */
+  /* Empty plot (forward-compat for plant 3+) — placed in back-center,
+     smaller, to suggest "there's room here for another plant". */
   .empty-plot {
-    position: absolute; left: 70%; top: 88%;
-    transform: translate(-50%, -100%);
+    position: absolute; left: 50%; top: 78%;
+    transform: translate(-50%, -100%) scale(0.78);
     display: inline-flex; flex-direction: column; align-items: center;
     text-decoration: none; color: var(--text-3);
     z-index: 4;
@@ -272,7 +274,7 @@
   /* Xiaoxia the lobster */
   .xiaoxia {
     position: absolute;
-    left: 50%; top: 92%;
+    left: 48%; top: 96%;
     transform: translate(-50%, -100%);
     display: inline-flex; flex-direction: column; align-items: center;
     z-index: 6;
@@ -381,7 +383,7 @@
       <h1>Winnie's garden <span class="leaf-emoji">🌿</span></h1>
       <p class="tagline">Hover any plant for details · click to open its profile</p>
     </div>
-    <span class="summary"><span class="live-dot"></span> 1 plant tracked · all sensors healthy</span>
+    <span class="summary"><span class="live-dot"></span> 2 plants tracked · all sensors healthy</span>
   </section>
 
   <section>
@@ -415,8 +417,15 @@
         <span class="plant-label">Goldie · 42% 💧</span>
       </a>
 
-      <!-- Empty plot for plant 2+ -->
-      <a class="empty-plot" href="https://github.com/winnieyangwannan/WaterPlant#adding-a-plant" aria-label="Add another plant" title="Add another plant">
+      <!-- Fernando the Boston Fern (currently thriving → no floating icon).
+           Sprite generated 2026-04-27 via Gemini 2.5 Flash Image; see prompts/sprites.md. -->
+      <a class="plant plant-fernando" href="2.html" aria-label="Fernando, Boston Fern, thriving, 58% moisture, last watered 3 days ago">
+        <img class="plant-glyph" src="sprites/2.png" alt="" aria-hidden="true">
+        <span class="plant-label">Fernando · 58% 💧</span>
+      </a>
+
+      <!-- Empty plot for plant 3+ — see docs/runbooks/add-plant.md -->
+      <a class="empty-plot" href="https://github.com/winnieyangwannan/WaterPlant/blob/main/docs/runbooks/add-plant.md" aria-label="Add another plant — see runbook" title="Add another plant">
         <span class="pot" aria-hidden="true"></span>
         <span class="empty-label">add a plant</span>
       </a>
@@ -434,19 +443,19 @@
     <div class="stat-strip" aria-label="Garden overview">
       <div class="stat">
         <p class="label">Plants tracked</p>
-        <p class="value">1 <small>· room for more</small></p>
+        <p class="value">2 <small>· room for more</small></p>
       </div>
       <div class="stat">
         <p class="label">Avg moisture</p>
-        <p class="value">42% <small>healthy band</small></p>
+        <p class="value">50% <small>healthy band</small></p>
       </div>
       <div class="stat">
         <p class="label">Last watered</p>
-        <p class="value">5d ago <small>Goldie</small></p>
+        <p class="value">3d ago <small>Fernando</small></p>
       </div>
       <div class="stat">
         <p class="label">Sensor health</p>
-        <p class="value">🟢 <small>1 of 1 online</small></p>
+        <p class="value">🟢 <small>2 of 2 online</small></p>
       </div>
     </div>
   </section>
@@ -460,6 +469,13 @@
           <span class="li-glyph">🪴</span>
           <span>Goldie</span>
           <span class="species">Epipremnum aureum</span>
+        </a>
+      </li>
+      <li>
+        <a href="2.html">
+          <span class="li-glyph">🌿</span>
+          <span>Fernando</span>
+          <span class="species">Nephrolepis exaltata</span>
         </a>
       </li>
     </ul>

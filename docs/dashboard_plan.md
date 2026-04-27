@@ -384,7 +384,7 @@ The most important convention from that file, repeated here so it doesn't get lo
 
 > **PRESERVE the plant, REINVENT the pot.** Cartoon avatars should faithfully copy the photo's leaf shape, variegation, growth habit, and proportions, but the pot is artistic license — never copy the real plastic/utilitarian pot from the photo. Use a hand-woven wicker basket, hand-painted ceramic, or similar.
 
-When adding a new plant: (1) drop a photo at `plants/<id>.<ext>` (HEIC works); (2) fill in the `sprite:` block of `plants/<id>.yaml`; (3) follow the invocation steps in `prompts/sprites.md`. Once `server/gen_sprites.py` lands in D7c, step 3 becomes a single command.
+When adding a new plant: **follow the runbook at [`docs/runbooks/add-plant.md`](runbooks/add-plant.md)** — that's the canonical protocol (photo → YAML → sprite → per-plant page → wire into garden → update plans → session log → commit). Once `server/gen_sprites.py` lands in D7c, the sprite step becomes a single command but the rest stays the same.
 
 #### Sprite generation — Gemini 2.5 Flash Image (nanobanana) — deferred to D7c
 
