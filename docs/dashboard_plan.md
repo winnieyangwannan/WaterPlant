@@ -376,6 +376,16 @@ Emojis go in the HTML as plain text inside spans with `font-size: 64px` (or larg
 
 **Migration path to real sprites (later):** the emoji stays in markup as a `data-fallback` attribute, and a single CSS swap (`.sprite[data-name="xiaoxia"] { background-image: url(sprites/xiaoxia.png); }`) replaces the emoji with the real PNG once the sprite library exists. No HTML rewrite needed.
 
+#### Plant-sprite prompt template — pinned at [`prompts/sprites.md`](../prompts/sprites.md)
+
+The full style guide, the "preserve plant / reinvent pot" rule, the prompt template with `{{ }}` placeholders, the worked Goldie example, and the current invocation pattern all live in [`prompts/sprites.md`](../prompts/sprites.md). Per-plant inputs (which features to preserve, which artistic pot to use, where the reference photo lives) are stored in each plant's `sprite:` block in `plants/<id>.yaml` — see [`plants/1.yaml`](../plants/1.yaml) for the canonical example.
+
+The most important convention from that file, repeated here so it doesn't get lost:
+
+> **PRESERVE the plant, REINVENT the pot.** Cartoon avatars should faithfully copy the photo's leaf shape, variegation, growth habit, and proportions, but the pot is artistic license — never copy the real plastic/utilitarian pot from the photo. Use a hand-woven wicker basket, hand-painted ceramic, or similar.
+
+When adding a new plant: (1) drop a photo at `plants/<id>.<ext>` (HEIC works); (2) fill in the `sprite:` block of `plants/<id>.yaml`; (3) follow the invocation steps in `prompts/sprites.md`. Once `server/gen_sprites.py` lands in D7c, step 3 becomes a single command.
+
 #### Sprite generation — Gemini 2.5 Flash Image (nanobanana) — deferred to D7c
 
 All sprites are generated via the Generative Language API model `gemini-2.5-flash-image`. Prompts live in `prompts/sprites.md` (to be added in this phase) so the entire library is reproducible — if we redesign Xiaoxia or repaint Goldie, we re-run the same prompts and commit the new PNGs.

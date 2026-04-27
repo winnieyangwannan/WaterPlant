@@ -204,6 +204,12 @@
     transform-origin: bottom center;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
   }
+  /* When .plant-glyph is an <img> sprite (instead of an emoji span), size it
+     bigger than the emoji because the cartoon has more detail. */
+  img.plant-glyph {
+    width: 200px; height: auto; display: block;
+    -webkit-user-drag: none; user-select: none;
+  }
   .plant-label {
     margin-top: 4px;
     font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
@@ -402,9 +408,10 @@
         <span class="rock-2">🪨</span>
       </div>
 
-      <!-- Goldie (currently healthy → no floating icon) -->
+      <!-- Goldie (currently healthy → no floating icon).
+           Sprite generated 2026-04-27 via Gemini 2.5 Flash Image; see prompts/sprites.md. -->
       <a class="plant plant-goldie" href="1.html" aria-label="Goldie, golden pothos, healthy, 42% moisture, last watered 5 days ago">
-        <span class="plant-glyph" aria-hidden="true">🪴</span>
+        <img class="plant-glyph" src="sprites/1.png" alt="" aria-hidden="true">
         <span class="plant-label">Goldie · 42% 💧</span>
       </a>
 

@@ -70,6 +70,8 @@ Legend: ✅ done · ⏳ active · 🟡 partial · ⬜ pending · 🔵 deferred
 | Quick repo orientation for newcomers | [`README.md`](../README.md) |
 | Per-plant profile data | [`plants/<id>.yaml`](../plants/) |
 | Rules of the road for Xiaoxia (LLM agent) | [`dashboard_plan.md` § Rules of the road](dashboard_plan.md#rules-of-the-road-for-xiaoxia) |
+| **Generating a cartoon avatar for a new plant** | [`prompts/sprites.md`](../prompts/sprites.md) (style guide + template + worked example) |
+| Per-plant sprite inputs (preserve list, artistic pot) | `sprite:` block in [`plants/<id>.yaml`](../plants/) |
 
 ---
 
