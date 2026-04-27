@@ -1,12 +1,95 @@
-# Arduino Automatic Plant Watering System — Plan
+# WaterPlant — Master Plan
 
-## Context
+> **Status (2026-04-27):** Hardware Phase 1 done · Phase 2 next · Public dashboard live at <https://winnieyangwannan.github.io/WaterPlant/>
 
-Build a standalone automatic plant watering system using Arduino Uno. It monitors soil moisture in real-time and waters the plant only when needed. Logging is via Serial Monitor (CSV-formatted output) — no SD card or RTC module required.
+This is the **entry point** for the WaterPlant project. The repo is split across two parallel tracks plus a chronological session log. Read this doc first to figure out where to look for what.
 
 ---
 
-## Hardware You Have
+## Project at a glance
+
+WaterPlant is a standalone automatic plant watering system: an Arduino Uno reads soil moisture from a capacitive sensor, decides when soil has dried below a threshold, and triggers a 12V pump through a relay. A small daemon on a VPS ingests the Arduino's CSV-formatted serial output into SQLite, and a static dashboard surfaces each plant's profile, watering history, and care tips — both publicly via GitHub Pages and privately on the VPS for live readings. No SD card, no RTC — timestamps are added host-side. Designed to keep one (or several) houseplants alive while the user is away.
+
+---
+
+## How this repo is organized
+
+The work splits into **two parallel tracks** plus a session log. Each owns its own plan doc; this file is just the index.
+
+### Track A — Hardware (this doc, sections below)
+
+Everything physical: Arduino firmware, sensor calibration, relay wiring, pump circuit, field test. Lives in `WaterPlant/`, `calibrate/`, with test writeups in `tests/` and diagrams in `docs/images/`.
+
+The hardware track is owned by **this file** from "Hardware track" onwards.
+
+### Track B — Software / dashboard ([`dashboard_plan.md`](dashboard_plan.md))
+
+Per-plant profiles, the live dashboard, the serial-bridge → SQLite → HTML data pipeline, public deployment via GitHub Pages, and the LLM-agent collaborator (Xiaoxia) workflow. Lives in `server/`, `dashboard_preview/`, `plants/`, `prompts/`, and `.github/workflows/`.
+
+If you want to know about anything *non-firmware* — how data flows, how the dashboard is built, how Xiaoxia operates the system, what gets deployed where — read [`dashboard_plan.md`](dashboard_plan.md).
+
+### Session log ([`docs/sessions/`](sessions/))
+
+Chronological "what we did, why, when" notes. Each session adds one date-prefixed file. Read these to catch up on recent work without scrolling through git history. New collaborators (human or LLM) should skim the most recent entry first.
+
+---
+
+## Status snapshot
+
+| Track | Phase | Status | Doc / artifact |
+|---|---|---|---|
+| Hardware | **1** — Calibrate sensor | ✅ Done 2026-04-26 (`SENSOR_DRY=458`, `SENSOR_WET=265`) | [tests/phase1_calibration.md](../tests/phase1_calibration.md) |
+| Hardware | **2** — Basic wiring + no-pump test | ⏳ Next | (writeup pending) |
+| Hardware | **3** — Pump + relay integration | ⬜ Pending | — |
+| Hardware | **4** — Field test | ⬜ Pending | — |
+| Software | **D1** — Logger + schema | 🟡 Code on disk (`server/logger.py`, `server/schema.sql`); will start ingesting once hardware Phase 2 is wired | [dashboard_plan.md](dashboard_plan.md#d1--logger--schema-depends-on-hardware-phase-2) |
+| Software | **D2** — Plant profile via Xiaoxia | 🟡 Goldie's YAML + photo committed; `prompts/care_tips.md` not yet pinned | [plants/1.yaml](../plants/1.yaml) |
+| Software | **D3a** — Public preview site | ✅ Live | <https://winnieyangwannan.github.io/WaterPlant/> |
+| Software | **D3b** — Live VPS dashboard (basic auth) | ⬜ Gated on hardware Phase 2 | [dashboard_plan.md](dashboard_plan.md#d3b--live-vps-dashboard-with-basic-auth) |
+| Software | **D4** — Watering before/after pairing | ⬜ Gated on Phase 3 | [dashboard_plan.md](dashboard_plan.md#d4--watering-history--beforeafter-pairing) |
+| Software | **D5** — Polish (sensor health, predictions, pump-effectiveness flag) | ⬜ Pending | [dashboard_plan.md](dashboard_plan.md#d5--polish-sensor-health-predicted-next-watering-pump-effectiveness-flag) |
+| Software | **D6** — Surface convergence (preview ↔ live) | 🔵 Deferred until real data flows | [dashboard_plan.md](dashboard_plan.md#public-deployment-surface-github-pages) |
+
+Legend: ✅ done · ⏳ active · 🟡 partial · ⬜ pending · 🔵 deferred
+
+---
+
+## Where to find things
+
+| If you want to know about… | Read |
+|---|---|
+| The big picture and current status | This file (you're here) |
+| How the dashboard, data pipeline, and Xiaoxia integration work | [`dashboard_plan.md`](dashboard_plan.md) |
+| What changed recently and why | [`docs/sessions/`](sessions/) — newest file first |
+| Phase 1 sensor calibration writeup | [`tests/phase1_calibration.md`](../tests/phase1_calibration.md) |
+| The serial bridge (Arduino → Mac → VPS) | [`docs/arduino-serial-bridge.md`](arduino-serial-bridge.md) |
+| Wiring diagrams | [`docs/images/`](images/) |
+| Quick repo orientation for newcomers | [`README.md`](../README.md) |
+| Per-plant profile data | [`plants/<id>.yaml`](../plants/) |
+| Rules of the road for Xiaoxia (LLM agent) | [`dashboard_plan.md` § Rules of the road](dashboard_plan.md#rules-of-the-road-for-xiaoxia) |
+
+---
+
+## Collaborators
+
+- **Winnie** ([@winnieyangwannan](https://github.com/winnieyangwannan)) — owner, plant parent, hardware operator
+- **Xiaoxia** ([@xiaoxiaopenclaw](https://github.com/xiaoxiaopenclaw)) — LLM agent collaborator, lives in a VM with serial-stream + repo edit access. Operates on YAML files in `plants/` and runs `server/render.py`. Read the rules-of-the-road section in [`dashboard_plan.md`](dashboard_plan.md#rules-of-the-road-for-xiaoxia) before making code changes.
+- **Claude** (via Cowork) — planning + edits in working sessions, commits authored by Winnie. Saves session summaries to [`docs/sessions/`](sessions/) autonomously.
+
+---
+---
+
+# Hardware track
+
+Everything below this line is the hardware track: the Arduino firmware, the wiring, and the four physical-build phases. For the software/dashboard track see [`dashboard_plan.md`](dashboard_plan.md).
+
+## Context
+
+Build a standalone automatic plant watering system using Arduino Uno. It monitors soil moisture in real-time and waters the plant only when needed. Logging is via Serial Monitor (CSV-formatted output) — no SD card or RTC module required. Timestamping happens host-side in the logger daemon (see Track B); the Arduino emits only its uptime in `millis()`.
+
+---
+
+## Hardware you have
 
 | Item | Model | Role |
 |------|-------|------|
@@ -18,7 +101,7 @@ Build a standalone automatic plant watering system using Arduino Uno. It monitor
 | [Breadboards Kit](https://www.amazon.com/dp/B07DL13RZH) | 830pt + 400pt ×2 | Prototyping |
 | [Jumper Wires](https://www.amazon.com/dp/B07GD3KDG9) | EDGELEC 120pcs 50cm | M-F, M-M, F-F |
 
-## Additional Items Still Needed
+## Additional items still needed
 
 | Item | Why | Note |
 |------|-----|------|
@@ -28,22 +111,20 @@ Build a standalone automatic plant watering system using Arduino Uno. It monitor
 
 ---
 
-## Wiring Diagram
+## Wiring diagram
 
-### Reference Wiring (ArduinoGetStarted.com)
+### Reference wiring (ArduinoGetStarted.com)
 ![Reference Wiring Diagram](images/reference_wiring.jpg)
 *Source: [arduinogetstarted.com](https://arduinogetstarted.com/tutorials/arduino-soil-moisture-sensor-pump)*
 
-### Full Diagram (all your exact components)
+### Full diagram (all your exact components)
 ![Wiring Diagram](images/wiring_diagram.png)
 
 > Reference diagrams from similar builds:
 > - [Arduino + Soil Moisture + Relay + Pump (arduinogetstarted.com)](https://arduinogetstarted.com/tutorials/arduino-soil-moisture-sensor-pump)
 > - [Capacitive Sensor Circuit Diagram (electroniclinic.com)](https://www.electroniclinic.com/capacitive-soil-moisture-sensor-arduino-circuit-diagram-and-programming/)
 
-
-
-### Pin Summary Table
+### Pin summary table
 
 | Wire | From | To | Color suggestion |
 |------|------|----|-----------------|
@@ -58,7 +139,7 @@ Build a standalone automatic plant watering system using Arduino Uno. It monitor
 | Pump negative | Pump (−) | 12V adapter (−) | Black (thick) |
 | Shared ground | 12V adapter (−) | Arduino GND | Black |
 
-### Relay Terminal Positions (Tolako module, left to right)
+### Relay terminal positions (Tolako module, left to right)
 
 ```
   ┌─────────────────────────────────────┐
@@ -84,12 +165,12 @@ Build a standalone automatic plant watering system using Arduino Uno. It monitor
 
 ---
 
-## Code Architecture
+## Code architecture
 
 ```
 WaterPlant/
 ├── WaterPlant.ino    # Main sketch: setup + loop
-├── config.h          # All tunable constants (pins, thresholds, timing)
+├── config.h          # All tunable constants (pins, thresholds, timing, calibration)
 ├── moisture.h        # Sensor read, averaging, map to %
 └── pump.h            # Relay control with safety limits
 ```
@@ -100,9 +181,10 @@ WaterPlant/
 #define MOISTURE_PIN      A0
 #define RELAY_PIN         7
 
-// Sensor calibration (run calibration sketch first)
-#define SENSOR_DRY        620   // ADC value in dry air
-#define SENSOR_WET        310   // ADC value fully submerged
+// Sensor calibration (run calibrate/calibrate.ino first to find your sensor's range)
+// Calibrated 2026-04-26: dry air ≈ 458, fully submerged ≈ 265.
+#define SENSOR_DRY        458   // raw ADC in dry air (higher = drier)
+#define SENSOR_WET        265   // raw ADC fully submerged (lower = wetter)
 
 // Moisture thresholds
 #define MOISTURE_LOW      30    // % — start watering below this
@@ -118,13 +200,13 @@ WaterPlant/
 ```
 setup():
   Serial.begin(9600)
-  print CSV header: "millis,moisture_pct,pump_state"
+  print CSV header: "millis,moisture_pct,event"
   relay pin → OUTPUT, LOW (pump OFF)
 
 loop():
   every READ_INTERVAL_MS:
     pct = readMoisture()           // average 10 ADC samples → map to %
-    Serial.println(millis + "," + pct + "," + pumpState)
+    Serial.println(millis + "," + pct + "," + event)
 
     if pct < MOISTURE_LOW AND cooldownElapsed:
       pump ON  → Serial.println(... "PUMP_ON")
@@ -146,7 +228,7 @@ loop():
 
 ### Serial Monitor output (CSV)
 ```
-millis,moisture_pct,pump_state
+millis,moisture_pct,event
 0,--,INIT
 60000,24,
 60000,24,PUMP_ON
@@ -154,21 +236,28 @@ millis,moisture_pct,pump_state
 120000,38,
 180000,55,
 ```
-Copy-paste into Excel/Sheets for charting.
+Copy-paste into Excel/Sheets for charting, or let `server/logger.py` ingest it into SQLite (see [`dashboard_plan.md`](dashboard_plan.md)).
+
+> **Multi-plant note:** Once a second sensor is added, the CSV gains a `sensor_idx` column → `millis,sensor_idx,moisture_pct,event`. The host-side mapping `sensor_idx → plant_id` lives in [`plants/_sensor_map.yaml`](../plants/_sensor_map.yaml). Full details in [`dashboard_plan.md` § Required Arduino changes](dashboard_plan.md#required-arduino-changes).
 
 ---
 
-## Implementation Phases
+## Implementation phases (hardware)
 
-### Phase 1 — Calibrate sensor
+> These are hardware phases only. For software/dashboard phases (**D1–D6**), see [`dashboard_plan.md` § Implementation phases](dashboard_plan.md#implementation-phases-software-track). The two tracks run in parallel — no need to finish hardware Phase 4 before starting on software.
+
+### Phase 1 — Calibrate sensor ✅ Done 2026-04-26
 1. Upload `calibrate/calibrate.ino` (prints raw ADC value every second)
 2. Hold sensor in dry air → note value → set `SENSOR_DRY` in config.h
 3. Dip sensor in water → note value → set `SENSOR_WET` in config.h
 
-### Phase 2 — Basic wiring + no-pump test
+Result: `SENSOR_DRY=458`, `SENSOR_WET=265`. Full writeup in [`tests/phase1_calibration.md`](../tests/phase1_calibration.md).
+
+### Phase 2 — Basic wiring + no-pump test ⏳ Next
 1. Wire moisture sensor to A0
-2. Upload main sketch with relay pin wired but pump NOT connected
-3. Verify Serial Monitor shows correct moisture % as you move sensor wet/dry
+2. Wire relay control side (5V→VCC, GND→GND, D7→IN). Leave 12V pump load disconnected.
+3. Upload main sketch
+4. Verify Serial Monitor shows correct moisture % as you move sensor wet/dry, and the relay clicks audibly when threshold trips (temporarily set `MOISTURE_LOW=90` to force a click)
 
 ### Phase 3 — Add pump + relay
 1. Wire relay to D7 and connect pump circuit with 12V adapter
@@ -179,16 +268,16 @@ Copy-paste into Excel/Sheets for charting.
 ### Phase 4 — Field test
 1. Insert sensor in plant soil
 2. Let run for several hours
-3. Copy Serial Monitor log to spreadsheet and plot moisture over time
+3. Copy Serial Monitor log to spreadsheet and plot moisture over time (or watch the live VPS dashboard once D3b is up)
 
 ---
 
-## Libraries Required
+## Libraries required
 All built-in to Arduino IDE — no installs needed.
 
 ---
 
-## Learning Resources & Tutorials
+## Learning resources & tutorials
 
 | Topic | Resource |
 |-------|----------|
@@ -196,7 +285,7 @@ All built-in to Arduino IDE — no installs needed.
 
 ---
 
-## Reference Projects
-- [Automatic Watering System - Arduino Project Hub](https://projecthub.arduino.cc/lc_lab/automatic-watering-system-for-my-plants-e4c4b9)
-- [Soil Moisture Sensor with LCD, RTC, SD Logger - Instructables](https://www.instructables.com/Soil-Moisture-Sensor-LCD-RTC-SD-Logger-Temperature/)
-- [SriTu Hobby — Step by step irrigation guide](https://srituhobby.com/how-to-make-an-automatic-irrigation-and-plant-watering-system-using-arduino-and-soil-moisture-sensor-step-by-step-instruction/)
+## Reference projects
+- [Automatic Watering System — Arduino Project Hub](https://projecthub.arduino.cc/lc_lab/automatic-watering-system-for-my-plants-e4c4b9)
+- [Soil Moisture Sensor with LCD, RTC, SD Logger — Instructables](https://www.instructables.com/Soil-Moisture-Sensor-LCD-RTC-SD-Logger-Temperature/)
+- [SriTu Hobby — Step-by-step irrigation guide](https://srituhobby.com/how-to-make-an-automatic-irrigation-and-plant-watering-system-using-arduino-and-soil-moisture-sensor-step-by-step-instruction/)

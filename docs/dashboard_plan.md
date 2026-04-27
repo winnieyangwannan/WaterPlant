@@ -1,6 +1,8 @@
-# Plant Profile + Dashboard — Plan
+# Plant Profile + Dashboard — Plan (software track)
 
-Companion to [`plan.md`](plan.md). That doc covers the **hardware track** (sensor → relay → pump → field test). This doc covers the **software track**: a per-plant profile and a dashboard that lets Winnie (and Xiaoxia) actually *see* what's going on with each plant.
+> **You may want to start at [`plan.md`](plan.md) instead.** That's the master plan and entry point for the project — it has the current status snapshot across both tracks and links here for software details. This doc is **track B (software)**: per-plant profiles, the data pipeline, the dashboard, and the public deployment. The hardware track (sensor → relay → pump → field test) is owned by `plan.md`.
+
+Goal: a per-plant profile + dashboard that lets Winnie (and Xiaoxia) actually *see* what's going on with each plant.
 
 ---
 

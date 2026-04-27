@@ -29,11 +29,13 @@ Soil Sensors → Arduino → Serial → Mac → SSH Tunnel → VPS → Xiaoxia �
 
 ## 🔗 Quick Links
 
-- 📋 [Project plan](docs/plan.md) — full roadmap, hardware list, wiring, code architecture
-- 📊 [Dashboard plan](docs/dashboard_plan.md) — per-plant profile + dashboard (software track)
-- 🔌 [Wiring diagram](docs/images/wiring_diagram.png) — visual reference
-- 🛠️ [Serial bridge guide](lesson/Openclaw_Arduino_Serial_Monitor.md) — connect Arduino to Xiaoxia
-- 📡 [Arduino serial bridge notes](docs/arduino-serial-bridge.md) — implementation details
+- 📋 **[Master plan](docs/plan.md)** — start here. Status snapshot, two-track overview, hardware track in full.
+- 📊 [Dashboard plan](docs/dashboard_plan.md) — software track: data pipeline, dashboard, deployment, Xiaoxia integration.
+- 📝 [Session log](docs/sessions/) — chronological "what did we do, why" notes.
+- 🌐 [Live dashboard](https://winnieyangwannan.github.io/WaterPlant/) — public preview site.
+- 🔌 [Wiring diagram](docs/images/wiring_diagram.png) — visual reference.
+- 🛠️ [Serial bridge guide](docs/Openclaw_Arduino_Serial_Monitor.md) — connect Arduino to Xiaoxia.
+- 📡 [Arduino serial bridge notes](docs/arduino-serial-bridge.md) — implementation details.
 
 ## 📊 Project Status
 
@@ -93,7 +95,7 @@ See the [project plan](docs/plan.md) for exact models and wiring details.
 1. **Calibrate the sensor** — Open `calibrate/calibrate.ino` in Arduino IDE, upload, follow [`tests/phase1_calibration.md`](tests/phase1_calibration.md) to get your sensor's dry/wet ADC values
 2. **Update calibration values** — Edit `WaterPlant/config.h` with your captured `SENSOR_DRY` and `SENSOR_WET`
 3. **Upload main sketch** — Open `WaterPlant/` in Arduino IDE, upload to your Uno
-4. **Set up serial bridge** — Follow [the bridge guide](lesson/Openclaw_Arduino_Serial_Monitor.md) to connect Arduino to Xiaoxia
+4. **Set up serial bridge** — Follow [the bridge guide](docs/Openclaw_Arduino_Serial_Monitor.md) to connect Arduino to Xiaoxia
 5. **Chat with Xiaoxia** — Ask "Check my plants" or "Water the plants"
 
 ## Xiaoxia Commands
