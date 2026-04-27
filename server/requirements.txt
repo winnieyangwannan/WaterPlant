@@ -1,2 +1,5 @@
-# Dummy requirements.txt
-PyYAML
+# Python dependencies for the WaterPlant server-side tooling
+# (logger.py + render.py). Install via:  python -m venv server/.venv
+#                                        server/.venv/bin/pip install -r requirements.txt
+PyYAML>=6.0
+Jinja2>=3.1
