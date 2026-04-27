@@ -1,0 +1,4 @@
+# Auto-generated from plants/*.yaml — do not hand-edit.
+# Used by server/logger.py to resolve sensor_idx -> plant_id at startup.
+# Regenerate with: python server/render.py --rebuild-sensor-map
+0: 1   # sensor_idx 0 -> Goldie

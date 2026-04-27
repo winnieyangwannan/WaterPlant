@@ -30,6 +30,7 @@ Soil Sensors → Arduino → Serial → Mac → SSH Tunnel → VPS → Xiaoxia �
 ## 🔗 Quick Links
 
 - 📋 [Project plan](docs/plan.md) — full roadmap, hardware list, wiring, code architecture
+- 📊 [Dashboard plan](docs/dashboard_plan.md) — per-plant profile + dashboard (software track)
 - 🔌 [Wiring diagram](docs/images/wiring_diagram.png) — visual reference
 - 🛠️ [Serial bridge guide](lesson/Openclaw_Arduino_Serial_Monitor.md) — connect Arduino to Xiaoxia
 - 📡 [Arduino serial bridge notes](docs/arduino-serial-bridge.md) — implementation details
