@@ -27,33 +27,73 @@ Soil Sensors → Arduino → Serial → Mac → SSH Tunnel → VPS → Xiaoxia �
 - 📊 **Serial monitor bridge** — Xiaoxia reads Arduino output remotely
 - 🏠 **Away mode** — plants stay watered while you travel
 
+## 🔗 Quick Links
+
+- 📋 [Project plan](docs/plan.md) — full roadmap, hardware list, wiring, code architecture
+- 🔌 [Wiring diagram](docs/images/wiring_diagram.png) — visual reference
+- 🛠️ [Serial bridge guide](lesson/Openclaw_Arduino_Serial_Monitor.md) — connect Arduino to Xiaoxia
+- 📡 [Arduino serial bridge notes](docs/arduino-serial-bridge.md) — implementation details
+
+## 📊 Project Status
+
+| Phase | Description | Status | Test Writeup |
+|-------|-------------|--------|--------------|
+| 1 | Calibrate moisture sensor | ✅ Done | [phase1_calibration.md](tests/phase1_calibration.md) |
+| 2 | Basic wiring + no-pump test | ⏳ Next | — |
+| 3 | Pump + relay integration | ⬜ TODO | — |
+| 4 | Field test with real plant | ⬜ TODO | — |
+
 ## Project Structure
 
 ```
 WaterPlant/
-├── WaterPlant/          # Main Arduino sketch
-├── calibrate/           # Sensor calibration tools
-├── lesson/              # Guides & tutorials
-│   └── Openclaw_Arduino_Serial_Monitor.md
-├── generate_diagram.py  # Wiring diagram generator
-├── wiring_diagram.png   # Visual wiring reference
-├── plan.md              # Project roadmap
-└── README.md            # This file
+├── README.md                 # This file
+├── CLAUDE.md                 # AI assistant instructions
+│
+├── WaterPlant/               # Main Arduino sketch
+│   ├── WaterPlant.ino
+│   ├── config.h              # Pins, thresholds, timing, calibration
+│   ├── moisture.h            # Sensor read + averaging
+│   └── pump.h                # Relay control + safety limits
+├── calibrate/                # Calibration sketch (run first)
+│   └── calibrate.ino
+│
+├── docs/                     # Project documentation
+│   ├── plan.md               # Roadmap & implementation plan
+│   ├── arduino-serial-bridge.md
+│   └── images/
+│       ├── wiring_diagram.png
+│       └── reference_wiring.jpg
+│
+├── tests/                    # Phase test writeups
+│   ├── phase1_calibration.md
+│   └── images/
+│       └── phase1_setup.jpg
+│
+├── tools/                    # Helper scripts
+│   └── generate_diagram.py
+│
+└── lesson/                   # Guides & tutorials
+    └── Openclaw_Arduino_Serial_Monitor.md
 ```
 
 ## Quick Start
 
 ### Hardware Needed
 - Arduino Uno
-- Soil moisture sensor(s)
+- Capacitive soil moisture sensor
 - Water pump + relay module
-- Power supply
-- Jumper wires
+- 12V power supply
+- Jumper wires + breadboard
+
+See the [project plan](docs/plan.md) for exact models and wiring details.
 
 ### Software Setup
-1. **Upload Arduino sketch** — Open `WaterPlant/` in Arduino IDE, select your board/port, upload
-2. **Set up serial bridge** — Follow [this guide](lesson/Openclaw_Arduino_Serial_Monitor.md) to connect Arduino to Xiaoxia
-3. **Chat with Xiaoxia** — Ask "Check my plants" or "Water the plants"
+1. **Calibrate the sensor** — Open `calibrate/calibrate.ino` in Arduino IDE, upload, follow [`tests/phase1_calibration.md`](tests/phase1_calibration.md) to get your sensor's dry/wet ADC values
+2. **Update calibration values** — Edit `WaterPlant/config.h` with your captured `SENSOR_DRY` and `SENSOR_WET`
+3. **Upload main sketch** — Open `WaterPlant/` in Arduino IDE, upload to your Uno
+4. **Set up serial bridge** — Follow [the bridge guide](lesson/Openclaw_Arduino_Serial_Monitor.md) to connect Arduino to Xiaoxia
+5. **Chat with Xiaoxia** — Ask "Check my plants" or "Water the plants"
 
 ## Xiaoxia Commands
 

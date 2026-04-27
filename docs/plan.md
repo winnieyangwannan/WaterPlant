@@ -31,11 +31,11 @@ Build a standalone automatic plant watering system using Arduino Uno. It monitor
 ## Wiring Diagram
 
 ### Reference Wiring (ArduinoGetStarted.com)
-![Reference Wiring Diagram](reference_wiring.jpg)
+![Reference Wiring Diagram](images/reference_wiring.jpg)
 *Source: [arduinogetstarted.com](https://arduinogetstarted.com/tutorials/arduino-soil-moisture-sensor-pump)*
 
 ### Full Diagram (all your exact components)
-![Wiring Diagram](wiring_diagram.png)
+![Wiring Diagram](images/wiring_diagram.png)
 
 > Reference diagrams from similar builds:
 > - [Arduino + Soil Moisture + Relay + Pump (arduinogetstarted.com)](https://arduinogetstarted.com/tutorials/arduino-soil-moisture-sensor-pump)

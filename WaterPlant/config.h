@@ -6,8 +6,9 @@
 
 // ── Sensor calibration ────────────────────────────────────────────────────────
 // Run calibrate/calibrate.ino first to find your sensor's actual range.
-#define SENSOR_DRY        620   // raw ADC in dry air (higher = drier)
-#define SENSOR_WET        310   // raw ADC fully submerged (lower = wetter)
+// Calibrated 2026-04-26: dry air ≈ 458, fully submerged ≈ 265.
+#define SENSOR_DRY        458   // raw ADC in dry air (higher = drier)
+#define SENSOR_WET        265   // raw ADC fully submerged (lower = wetter)
 
 // ── Moisture thresholds ───────────────────────────────────────────────────────
 #define MOISTURE_LOW      30    // % — trigger watering below this
